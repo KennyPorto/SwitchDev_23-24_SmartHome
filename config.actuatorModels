@@ -1,0 +1,5 @@
+# actuators
+actuator = BlindRollerActuator
+actuator = SwitchOnOffActuator
+actuator = RangeActuatorInt
+actuator = RangeActuatorDecimal

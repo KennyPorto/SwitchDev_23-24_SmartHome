@@ -1,0 +1,15 @@
+# sensors
+sensor = TemperatureSensor
+sensor = HumiditySensor
+sensor = ScaleSensor
+sensor = DewPointSensor
+sensor = SolarIrradianceSensor
+sensor = WindSensor
+sensor = InstantPowerConsumptionSensor
+sensor = AveragePowerConsumptionSensor
+sensor = ElectricEnergyConsumptionSensor
+sensor = SunriseSensor
+sensor = SunsetSensor
+sensor = BinarySwitch
+sensor = WindDirection
+
