@@ -1,0 +1,146 @@
+@startuml
+!theme toy
+
+package controller {
+    class Ctrl33 {
+        - _deviceLogService: DeviceLogService
+        + Ctrl33(deviceLogService: DeviceLogService )
+        +  getAllLogs(roomId: long, deviceId: long, dto: TimePeriodDTO): DeviceRecordsDTO
+    }
+}
+
+package service {
+    class DeviceLogService {
+        - _deviceRepository: DeviceRepository
+        - _sensorRepository: SensorRepository
+        - _actuatorRepository: ActuatorRepository
+        - _sensorActivityLogRepository: SensorActivityLogRepository
+        - _actuatorActivityLogRepository: ActuatorActivityLogRepository
+        + DeviceLogService(deviceRepository: DeviceRepository, sensorRepository: SensorRepository, \nactuatorRepository: ActuatorRepository, sensorActivityLogRepository: SensorActivityLogRepository,\nactuatorActivityLogRepository: ActuatorActivityLogRepository)
+        + getAllLogs(roomId: long, deviceId: long, dto: TimePeriodDTO): DeviceRecordsDTO
+        - validateDeviceHasRoomId( roomId: long, deviceId: long): boolean
+        - getAllSensorLogsFromDevice(deviceId: long, timePeriodDTO: TimePeriodDTO): List<SensorActivityLogDTO>
+        - getAllActuatorLogsFromDevice(deviceId: long,  timePeriodDTO: TimePeriodDTO): List<ActuatorActivityLogDTO>
+    }
+}
+
+package ddd {
+    interface Repository {
+            + save(T entity): T
+            + findAll(): Iterable<T>
+            + findById(id: ID): Optional<T>
+            + existsById(id: ID): boolean
+            }
+}
+
+package repository {
+    interface DeviceRepository {
+    + findAllByRoomId(roomId: long)\n: Iterable<Device>
+    + isActiveById(deviceId: DeviceId)\n: boolean
+    }
+
+    interface SensorRepository {
+    + findAllByDeviceId(deviceId: Long)\n: Iterable<Sensor>
+    + findAllByDeviceIdAndSensorTypeId(\ndeviceId: long, sensorTypeId: String)\n: Iterable<Sensor>
+    }
+
+    interface ActuatorRepository {
+    + findAllByDeviceId(deviceId: Long)\n: Iterable<Actuator>
+    }
+
+    interface SensorActivityLogRepository {
+    + findAllBySensorIdAndTimestampBetween(\nsensorId: long, startDate: ZonedDateTime, \nendDate: ZonedDateTime)\n: Iterable<SensorActivityLog>
+    }
+
+    interface ActuatorActivityLogRepository {
++ findAllBySensorIdAndTimestampBetween(\nactuatorId: long, startDate: ZonedDateTime, \nendDate: ZonedDateTime)\n: Iterable<ActuatorActivityLog>
+    }
+
+}
+
+package mapper {
+    class TimePeriodDTO {
+    + startDate: String
+    + endDate: String
+    + TimePeriodDTO (startDate: String, \nendDate: String): TimePeriodDTO
+    }
+
+     class DeviceRecordsDTO {
+     + actuatorLogs: List<ActuatorActivityLogDTO>
+     + sensorLogs: List<SensorActivityLogDTO>
+     + DeviceRecordsDTO(actuatorLogs: List<ActuatorActivityLogDTO>, \nsensorLogs: List<SensorActivityLogDTO>): DeviceRecordsDTO
+     }
+
+    class SensorActivityLogDTO {
+    + sensorActivityLogId: long
+    + sensorId: long
+    + timeStamp: String
+    + measurement: String
+    + SensorActivityLogDTO (sensorActivityLogId: long, \nsensorId: long, timeStamp: ZonedDateTime, \nmeasurement: String): SensorActivityLogDTO
+    }
+
+    class ActuatorActivityLogDTO {
+    + activityLogId: long
+    + actuatorId: long
+    + timeStamp: String
+    + measurement: String
+    + ActuatorActivityLogDTO(activityLogId: long, \nactuatorId: long, timeStamp: ZonedDateTime, \nmeasurement: String): ActuatorActivityLogDTO
+    }
+
+    class ActivityLogMapper {
+    + toDTO(actuatorActivityLog: ActuatorActivityLog)\n: ActuatorActivityLogDTO
+    + toDTO(actuatorActivityLogs: Iterable<ActuatorActivityLog>)\n: Iterable<ActuatorActivityLogDTO>
+    + toDomain(model: ActuatorActivityLogDataModel): ActuatorActivityLog
+    + toDomain(dataModels: Iterable<ActuatorActivityLogDataModel>)\n: Iterable<ActuatorActivityLog>
+    + sensorDataModelToDomain(model: SensorActivityLogDataModel)\n: SensorActivityLog
+    + sensorsDataModelToDomain(dataModels: \nIterable<SensorActivityLogDataModel>): Iterable<SensorActivityLog>
+    + sensorToDTO(sensorActivityLog: SensorActivityLog)\n: SensorActivityLogDTO
+    + sensorsToDTO(sensorActivityLogs: \nIterable<SensorActivityLog>): Iterable<SensorActivityLogDTO>
+    + sensorLogAndMeasurementToDto(data: \nList<SensorActivityLog>): List<SensorActivityLogDTO>
+    + actuatorLogAndMeasurementToDto(data: \nList<ActuatorActivityLog>): List<ActuatorActivityLogDTO>
+ }
+}
+
+package domain {
+    class Device {
+        ...
+        ...()
+    }
+    class Sensor {
+        ...
+        ...()
+    }
+    class Actuator {
+        ...
+        ...()
+    }
+    class SensorActivityLog {
+        ...
+        ...()
+    }
+    class ActuatorActivityLog {
+        ...
+        ...()
+    }
+}
+
+Ctrl33 "1" *-right- "1" DeviceLogService : uses >
+DeviceLogService *-- DeviceRepository : uses >
+DeviceLogService *-- SensorRepository : uses >
+DeviceLogService *-- ActuatorRepository : uses >
+DeviceLogService *-- SensorActivityLogRepository : uses >
+DeviceLogService *-- ActuatorActivityLogRepository : uses >
+DeviceLogService -up- TimePeriodDTO : uses >
+DeviceLogService -up- DeviceRecordsDTO : returns >
+DeviceLogService -up- SensorActivityLogDTO : uses >
+DeviceLogService -up- ActuatorActivityLogDTO : uses >
+DeviceLogService -up- ActivityLogMapper : uses >
+DeviceLogService -right- domain: uses >
+
+DeviceRepository "1" ..|> Repository
+SensorRepository "1" ..|> Repository
+ActuatorRepository "1" ..|> Repository
+SensorActivityLogRepository "1" ..|> Repository
+ActuatorActivityLogRepository "1" ..|> Repository
+
+@enduml

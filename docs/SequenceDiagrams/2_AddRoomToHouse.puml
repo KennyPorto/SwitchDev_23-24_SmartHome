@@ -1,0 +1,97 @@
+@startuml
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+title UC02 - Add new Room to House
+
+[o-> ":Ctrl02" : addRoomToHouse(roomDTO : RoomDTO)
+activate ":Ctrl02"
+
+":Ctrl02" -> ":RoomService" : add(roomDTO: RoomDTO)
+activate ":RoomService"
+":RoomService" -> ":HouseFactory" : createHouseId(houseId : long)
+activate ":HouseFactory"
+":HouseFactory" -> ":HouseId"** : HouseId(houseId : long)
+activate ":HouseId"
+":HouseId" -> ":HouseId" : validateArguments ()
+":HouseId" --> ":HouseFactory" : <font color="green">HouseId </font>
+deactivate ":HouseId"
+":HouseFactory" --> ":RoomService" : <font color="green">HouseId </font>
+deactivate ":HouseFactory"
+":RoomService" -> ":HouseRepository" : existsById(houseId : HouseId)
+activate ":HouseRepository"
+":HouseRepository" --> ":RoomService" : <font color="green">true </font>
+deactivate ":HouseRepository"
+":RoomService" -> ":RoomFactory" : createRoomId(roomId : long)
+activate ":RoomFactory"
+":RoomFactory" -> ":RoomId"** : RoomId(roomId : long)
+activate ":RoomId"
+":RoomId" -> ":RoomId" : validateArguments()
+":RoomId" --> ":RoomFactory" : <font color="green">RoomId </font>
+deactivate ":RoomId"
+":RoomFactory" --> ":RoomService" : <font color="green">RoomId </font>
+deactivate ":RoomFactory"
+":RoomService" -> ":RoomRepository" : existsById(roomId : RoomId)
+activate ":RoomRepository"
+":RoomRepository" --> ":RoomService" : <font color="red">false </font>
+deactivate ":RoomRepository"
+":RoomService" -> ":RoomFactory" : createRoomName(roomName : String)
+activate ":RoomFactory"
+":RoomFactory" -> ":RoomName"** : createRoomName(roomName : String)
+activate ":RoomName"
+":RoomName" -> ":RoomName" : validateArguments()
+":RoomName" --> ":RoomFactory" : <font color="green">RoomName </font>
+deactivate ":RoomName"
+":RoomFactory" --> ":RoomService" : RoomName
+deactivate ":RoomFactory"
+":RoomService" -> ":RoomFactory" : createFloor(houseFloor : String)
+activate ":RoomFactory"
+":RoomFactory" -> ":Floor"** : createFloor(houseFloor : String)
+activate ":Floor"
+":Floor" -> ":Floor" : validateArguments()
+":Floor" --> ":RoomFactory" : <font color="green">Floor </font>
+deactivate ":Floor"
+":RoomFactory" --> ":RoomService" : <font color="green">Floor </font>
+deactivate ":RoomFactory"
+":RoomService" -> ":RoomFactory" : createDimensions(width : double, height : double, lenght : double)
+activate ":RoomFactory"
+":RoomFactory" -> ":Dimensions"** : createDimensions(width : double, height : double, lenght : double)
+activate ":Dimensions"
+":Dimensions" -> ":Dimensions" : validateArguments()
+":Dimensions" --> ":RoomFactory" : <font color="green">Dimensions </font>
+deactivate ":Dimensions"
+":RoomFactory" --> ":RoomService" : <font color="green">Dimensions </font>
+deactivate ":RoomFactory"
+":RoomService" -> ":RoomFactory" : createRoom(houseID: HouseID, roomName : RoomName, roomID : RoomID, floor : Floor, dimensions : Dimensions)
+activate ":RoomFactory"
+":RoomFactory" -> ":Room"** : createRoom(houseID: HouseID, roomName : RoomName, roomID : RoomID, floor : Floor, dimensions : Dimensions)
+activate ":Room"
+":Room" --> ":RoomFactory" : <font color="green">Room </font>
+deactivate ":Room"
+":RoomFactory" --> ":RoomService" : <font color="green">Room </font>
+deactivate ":RoomFactory"
+":RoomService" -> ":RoomRepository" : save(room : Room)
+activate ":RoomRepository"
+":RoomRepository" --> ":RoomService" : <font color="green">Room </font>
+deactivate ":RoomRepository"
+":RoomService" --> ":Ctrl02" : <font color="green">true </font>
+deactivate ":RoomService"
+[o<-- ":Ctrl02": <font color="green">true </font>
+
+@enduml

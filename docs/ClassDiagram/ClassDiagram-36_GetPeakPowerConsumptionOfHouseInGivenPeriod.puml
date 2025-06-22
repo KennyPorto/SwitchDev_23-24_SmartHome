@@ -1,0 +1,105 @@
+@startuml
+!theme toy
+
+package controller {
+    class HouseController {
+        - _peakPowerService: PeakPowerService
+        +  findPeakPower(houseId: long, start: String, end: String, delta: String): PeakPowerDTO
+    }
+}
+
+package service {
+    class PeakPowerService {
+        - _houseRepository: HouseRepository
+        - _roomRepository: RoomRepository
+        - _deviceRepository: DeviceRepository
+        - _sensorRepository: SensorRepository
+        - _sensorActivityLogRepository: SensorActivityLogRepository
+        + PeakPowerService(deviceRepository: DeviceRepository, sensorRepository: SensorRepository, \nroomRepository: RoomRepository, sensorActivityLogRepository: SensorActivityLogRepository,\nhouseRepository: HouseRepository)
+        + findPeakPower(houseId: HouseId, start: ZonedDateTime, end: ZonedDateTime, delta: long): double
+        - findPowerSensorsAndFillCombinedLists(start: ZonedDateTime, end: ZonedDateTime, instantPowerSensors: Iterable<Sensor>)
+        - validateInputs(houseId: HouseId, delta: long)
+        - fetchAndAddLogsToCombinedList(sensor: Sensor, start: ZonedDateTime, end: ZonedDateTime, isMeterLog: boolean)
+        - getInstantPowerConsumption(consumptionLogs: List<SensorActivityLog>, meterLogs: List<SensorActivityLog>, delta: delta): double
+    }
+}
+
+package ddd {
+    interface Repository {
+            + save(T entity): T
+            + findAll(): Iterable<T>
+            + findById(id: ID): Optional<T>
+            + existsById(id: ID): boolean
+            }
+}
+
+package repository {
+    interface HouseRepository {
+    }
+
+    interface RoomRepository {
+    + findAllByHouseId(houseId: Long)\n: Iterable<Room>
+    + findAllByHouseIdAndOutdoorIndoor(id: long, \noutdoorIndoor: OutdoorIndoor): Iterable<Room>
+    }
+
+    interface DeviceRepository {
+    + findAllByRoomId(roomId: long)\n: Iterable<Device>
+    + isActiveById(deviceId: DeviceId)\n: boolean
+    }
+
+    interface SensorRepository {
+    + findAllByDeviceId(deviceId: Long)\n: Iterable<Sensor>
+    + findAllByDeviceIdAndSensorTypeId(\ndeviceId: long, sensorTypeId: String)\n: Iterable<Sensor>
+    }
+
+    interface SensorActivityLogRepository {
+    + findAllBySensorIdAndTimestampBetween(\nsensorId: long, startDate: ZonedDateTime, \nendDate: ZonedDateTime)\n: Iterable<SensorActivityLog>
+    }
+}
+
+package mapper {
+    class PeakPowerDTO {
+    + peakPower: double
+    + PeakPowerDTO (peakPower: double)
+    }
+}
+
+package domain {
+    class House {
+        ...
+        ...()
+    }
+    class Room {
+        ...
+        ...()
+    }
+    class Device {
+        ...
+        ...()
+    }
+    class Sensor {
+        ...
+        ...()
+    }
+    class SensorActivityLog {
+        ...
+        ...()
+    }
+}
+
+HouseController "1" *-right- "1" PeakPowerService : uses >
+PeakPowerService *-- DeviceRepository : uses >
+PeakPowerService *-- SensorRepository : uses >
+PeakPowerService *-- RoomRepository : uses >
+PeakPowerService *-- SensorActivityLogRepository : uses >
+PeakPowerService *-- HouseRepository : uses >
+PeakPowerService -up- PeakPowerDTO : uses >
+PeakPowerService -right- domain: uses >
+
+DeviceRepository "1" ..|> Repository
+SensorRepository "1" ..|> Repository
+RoomRepository "1" ..|> Repository
+SensorActivityLogRepository "1" ..|> Repository
+HouseRepository "1" ..|> Repository
+
+@enduml

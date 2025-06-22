@@ -1,0 +1,137 @@
+@startuml
+
+left to right direction
+
+package controller{
+    class Ctrl02{
+    - _roomService : RoomService
+    + Ctrl02(roomService : RoomService) : Ctrl02
+    + addRoomToHouse (roomDTO : RoomDTO) : boolean
+    }
+}
+
+package domain{
+    package house{
+        class HouseFactory {
+        ...
+            + createHouseId(id : long) : Optional<HouseID>
+        }
+    }
+    package room{
+        class RoomFactory{
+            + createRoom(roomName : RoomName, roomId : RoomID, \nhouseId : HouseID, dimensions : Dimensions): Room
+            + createRoomName (name : String) : Optional<RoomName>
+            + createRoomId(id : long) : Optional<RoomID>
+            + createFloor(floor : String) : Optional<Floor>
+            + createDimensions(height : double, width : double, length : double) : Optional<Dimensions>
+        }
+
+        class Room {
+                - _roomName : RoomName
+                - _roomId : RoomID
+                - _houseId : HouseID
+                - _dimensions : Dimensions
+                - _floor : Floor
+                + Room (roomName : RoomName, roomId : RoomId, \nhouseId : HouseId, floor : Floor, dimenions : Dimenions) : Room
+                + identity() : RoomId
+                + sameAs (object : Object) : boolean
+                + getRoomName() : RoomName
+                + getHouseId() : HouseID
+                + getDimensions() : Dimensions
+                + getHouseFloor() : Floor
+            }
+    }
+
+    package valueObject{
+        class HouseID{
+            + id : long
+            + HouseID(id : long) : HouseId
+            + equals (object : Object) : boolean
+        }
+        class RoomName{
+            + name : String
+            + RoomName(name : String) : RoomName
+            + equals (object : Object) : boolean
+        }
+        class Floor{
+            + floor : String
+            + Floor(floor : String) : Floor
+            + equals (object : Object) : boolean
+        }
+        class RoomID{
+            + id : long
+            + RoomID(id : long) : RoomID
+            + equals (object : Object) : boolean
+        }
+        class Dimensions {
+            + height: double
+            + width: double
+            + length: double
+            + Dimensions(height: double, width: double, length: double) : Dimensions
+            + equals (object : Object) : boolean
+        }
+    }
+}
+package Service{
+    class RoomService{
+        - _roomRepository : RoomRepository
+        - _houseRepository : HouseRepository
+        - _roomFactory : RoomFactory
+        - _houseFactory : HouseFactory
+        + RoomService(roomRepository : RoomRepository, houseRepository : HouseRepository, \nroomFactory : RoomFactory, houseFactory : HouseFactory) : RoomService
+        + add(roomDTO : RoomDTO) : RoomDTO
+        + findAll() : Iterable<RoomDTO>
+        + existsById(id : long) : Pair<boolean, RoomId>
+        + getListRoomsByHouseId (id : long) : Iterable<RoomDTO>
+        + findById(id : long) : RoomDTO
+    }
+}
+package DTO{
+    class RoomDTO{
+       ...
+        + RoomDTO(roomName : String, roomId : long, houseId : long, \nhouseFloor : String, height : double, length : double, width : double) : RoomDTO
+    }
+}
+
+package Repository{
+    class HouseRepository{
+    ...
+        + existsById(houseID : HouseID) : boolean
+        + findById(houseID : HouseID) : Optional<House>
+    }
+    class RoomRepository{
+        + add(room : Room) : Room
+        + findAll() : Iterable<Room>
+        + findById(roomID : RoomID) : Optional<Room>
+        + existsById(roomID : RoomID) : boolean
+        + findByHouseId(houseID : HouseID) : List<Room>
+    }
+}
+
+Ctrl02 "1" *-down- "1" RoomService : uses >
+Ctrl02 "1" *.. "1" RoomDTO : uses >
+RoomService "1" *.. "1" RoomDTO : uses >
+RoomService "1" *-down- "1" HouseFactory :uses >
+HouseFactory "1" *-left- "1" HouseID : creates >
+RoomService "1" *-left- "1" HouseRepository :interacts >
+RoomService "1" *-left- "1" RoomFactory : uses >
+RoomService "1" *-left- "1" RoomRepository : interacts >
+RoomFactory "1"  *-left-  "1" Dimensions: creates >
+RoomFactory "1"  *-left-  "1" RoomName: creates >
+RoomFactory "1"  *-left-  "1" RoomID: creates >
+RoomFactory "1"  *-left-  "1" Floor: creates >
+RoomFactory "1"  *-left-  "1" Room: creates >
+Room "1" *-down- "1" RoomName : has >
+Room "1" *-down- "1" RoomID : has >
+Room "1" *-down- "1" HouseID : has >
+Room "1" *-down- "1" Floor : has >
+Room "1" *-down- "1" Dimensions : has >
+RoomRepository "1" *-down- "1" Room : uses >
+RoomRepository "1" *-down- "1" RoomID : uses >
+RoomRepository "1" *-down- "1" HouseID : uses >
+RoomFactory "1" *-down- "1" HouseID: uses >
+
+
+
+
+@enduml

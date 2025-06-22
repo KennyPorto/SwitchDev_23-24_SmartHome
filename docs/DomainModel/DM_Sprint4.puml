@@ -1,0 +1,40 @@
+@startuml
+'https://plantuml.com/class-diagram
+!theme reddress-lightblue
+
+note "- LightCoral color represents Aggregate Root \n- Grey color represents Value Objects" AS N1
+
+House #LightCoral-down-> HouseId : has
+House -down-> GPS : has
+House -down-> Address :has
+House -down-> ZipCode: has
+
+Room #LightCoral-down-> RoomId : has
+Room -down-> RoomName : has
+Room -down-> Dimensions : has
+Room -down-> Floor : has
+Room -up-> HouseId : has
+
+Device #LightCoral-down-> DeviceId : has
+Device -down-> DeviceName : has
+Device -down-> DeviceModel : has
+Device -down-> RoomId : has
+Device -left-> DeviceStatus: has
+
+Sensor #LightCoral-down-> SensorId : has
+Sensor -down-> SensorTypeId : has
+Sensor -down-> SensorName : has
+Sensor -down-> SensorModel : has
+Sensor -up-> DeviceId : has
+
+SensorType #LightCoral-down-> SensorTypeId : has
+
+Actuator #LightCoral-down-> ActuatorId : has
+Actuator -down-> ActuatorName : has
+Actuator -down-> ActuatorModel : has
+Actuator -down-> ActuatorTypeId : has
+Actuator -up-> DeviceId : has
+
+ActuatorType #LightCoral-down-> ActuatorTypeId : has
+
+@enduml

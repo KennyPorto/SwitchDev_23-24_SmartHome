@@ -1,0 +1,39 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam CollectionsBorderColor #000000
+skinparam CollectionsBackgroundColor #2471A3
+skinparam CollectionsFontColor #EEF2F7
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+autonumber
+
+title HasScaleSensor (deviceID: DeviceId)
+
+ActuatorActService -> SensorRepository: findAllByDeviceId (deviceId: DeviceId)
+activate SensorRepository
+SensorRepository --> ActuatorActService: <font color="green">sensors : Iterable<Sensor> </font>
+deactivate SensorRepository
+loop sensors.size
+ActuatorActService -> Sensor: getSensorModel().getModel().equals("ScaleSensor")
+activate Sensor
+Sensor --> ActuatorActService: <font color="green">true </font>
+deactivate Sensor
+end
+@enduml

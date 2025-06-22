@@ -1,0 +1,38 @@
+@startuml
+
+!theme cerulean
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor white
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+
+title Process View Level 3 - POST
+
+box Backend #lightgray
+participant "Server" as server
+participant "Database" as BD
+endbox
+
+[o-> server : POST
+activate server
+server -> BD : createData()
+activate BD
+BD -> server : data
+deactivate
+[o<- server : CREATED 201
+deactivate
+
+@enduml

@@ -1,0 +1,110 @@
+@startuml
+
+package room {
+    class Room <root> {
+        - _roomName: RoomName
+        - _roomID: RoomID
+        - _houseID: HouseID
+        - _houseFloor: Floor
+        - _dimensions: Dimensions
+        # Room(roomName: RoomName, RoomId roomId, houseID: HouseID, houseFloor: Floor, dimensions:Dimensions): Room
+        + identity(): RoomID
+        + sameAs(object: Object): boolean
+        + getRoomName(): RoomName
+        + getHouseId(): HouseId
+        + getHouseFloor(): Floor
+        + getDimensions(): Dimensions
+    }
+
+    class RoomFactory {
+        + createRoom(roomName: RoomName, houseID: HouseID, houseFloor: Floor, dimensions: Dimensions): Room
+        + createRoomName(roomName: String): Optional<RoomName>
+        + createRoomID(roomID: long): Optional<RoomID>
+        + createHouseID(houseID: long): Optional<HouseID>
+        + createFloor(floor: String): Optional<Floor>
+        + createDimensions(height: double, width: double, length: double): Optional<Dimensions>
+    }
+}
+
+package services {
+    class RoomService {
+        - _roomRepository: RoomRepository
+        - _roomFactory: RoomFactory
+        - _houseRepository: HouseRepository
+        - _houseFactory: HouseFactory
+
+        + RoomService(_roomRepository: RoomRepository, _roomFactory: RoomFactory, _houseRepository: HouseRepository, _houseFactory: HouseFactory): RoomService
+        + add(roomDTO: RoomDTO: boolean
+        + findById(id: Long): RoomDTO
+        + findAll(): Iterable<RoomDTO>
+        + existsById(id: Long): Pair<Boolean, RoomId>
+        + getListRoomsByHouseId(id: long) : Iterable<RoomDTO>
+    }
+}
+
+package valueobject {
+    class RoomName <vo> {
+        - _name: String
+        + RoomName(name: String): RoomName
+        - validateArguments(name: String): boolean
+        + equals(object: Object): boolean
+    }
+    class HouseID <vo> {
+        - _id: long
+        + HouseID(id: long): void
+        - validateArguments(id: long): boolean
+        + equals(object: Object): boolean
+
+    }
+    class Floor <vo> {
+        - _floor: String
+        + Floor(floor: String): Floor
+        - validateArguments(floor: String): boolean
+        + equals(object: Object): boolean
+    }
+    class Dimensions <vo> {
+        - _width: int
+        - _length: int
+        + Dimensions(width: int, length: int): Dimensions
+        - validateArguments(width: double, length: double): boolean
+        + equals(object: Object): boolean
+    }
+
+    class RoomID <vo> {
+        - _id: long
+        + RoomID(id: long): void
+        - validateArguments(id: long): boolean
+        + equals(object: Object): boolean
+    }
+}
+
+package repository {
+    class RoomRepository {
+        - _rooms: Map<RoomID, Room>
+        + save(room: Room): Room
+        + findAll(): Iterable<Room>
+        + findByID(id: RoomID): Optional<Room>
+        + existsById(id: RoomID): boolean
+        + findAllByHouseId(houseId : HouseId): Iterable<Room>
+    }
+
+    class HouseRepository {
+        ...
+        + existsByID(houseID: HouseID): boolean
+        ... ()
+    }
+}
+
+
+
+HouseRepository "1" -right-* "1" RoomService : interacts
+RoomFactory "1" *-- "*" Room: creates
+Room "1" *-- "1" RoomName : uses >
+Room "1" *-- "1" HouseID : uses >
+Room "1" *-- "1" Floor : uses >
+Room "1" *-- "1" Dimensions : uses >
+Room "1" *-- "1" RoomID : uses >
+RoomService "1" *-right- "1" RoomRepository: interacts
+RoomService "1" o-- "1" RoomFactory: uses
+
+@enduml

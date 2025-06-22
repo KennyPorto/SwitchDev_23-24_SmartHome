@@ -1,0 +1,98 @@
+@startuml
+
+!theme cerulean
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor white
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+
+title Process View Level 4 - POST
+
+box Server #lightgray
+participant ":Route" as route
+participant ":Dto2Json" as dtotojson
+participant ":Controller" as controller
+participant ":Mapper\nDto2VO" as dtotovo
+participant ":Mapper\nModel2Dto" as modeltodto
+participant "voX1:VOX" as vox1
+participant "dtoX1:dtoX" as dtoX
+participant ":AppService" as appservice
+participant "x1:Model" as model
+participant ":Repository" as repository
+participant ":Mapper\nDomainToData" as domtodata
+participant "dataX1:DataX" as data
+participant ":DBDriver" as bddriver
+endbox
+
+box DataBase #lightgray
+participant "X1saved:X" as x1saved
+participant "savedX1:DataX" as savedx1
+end box
+
+[o-> route : POST / X / (json)
+activate route
+route -> route : validate(json)
+route -> route : convert2Dto(json)
+route -> controller : createX(dtoX)
+activate controller
+controller -> dtotovo : map2dto(dtoX)
+activate dtotovo
+dtotovo --> vox1** : create(dtoX)
+vox1 --> dtotovo : vox1
+dtotovo --> controller :vox1
+deactivate dtotovo
+controller -> appservice : createX(voX1)
+activate appservice
+appservice --> model**
+model --> appservice : x1
+appservice -> repository : save(x1)
+activate repository
+repository -> domtodata : map2Data(x1)
+activate domtodata
+domtodata --> data** : create(x1)
+data --> domtodata : dataX1
+domtodata --> repository : dataX1
+deactivate domtodata
+repository -> bddriver : save(dataX1)
+activate bddriver
+bddriver --> savedx1** : update(dataX1)
+savedx1 --> bddriver : savedX1
+bddriver --> repository : savedX1
+deactivate bddriver
+repository -> domtodata : map2Model(savedX1)
+activate domtodata
+domtodata --> x1saved** :
+x1saved --> domtodata : X1saved
+domtodata --> repository : X1saved
+deactivate domtodata
+repository --> appservice : X1saved
+deactivate repository
+appservice --> controller : X1saved
+deactivate appservice
+controller -> modeltodto : map2dto(X1saved)
+activate modeltodto
+modeltodto -> dtoX** : create (X1saved))
+dtoX --> modeltodto : dtoX1
+modeltodto --> controller : dtoX1
+deactivate modeltodto
+controller --> route : dtoX1
+deactivate controller
+route -> route : convert2Json(dtoX1)
+route -> route : generateRes(json)
+[o<- route : CREATED 201
+deactivate route
+
+@enduml

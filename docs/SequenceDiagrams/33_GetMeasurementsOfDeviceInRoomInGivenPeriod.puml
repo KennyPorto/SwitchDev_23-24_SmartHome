@@ -1,0 +1,119 @@
+@startuml
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam CollectionsBorderColor #000000
+skinparam CollectionsBackgroundColor #2471A3
+skinparam CollectionsFontColor #EEF2F7
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+title UC33 - get a list of all measurement of a device in a room
+
+participant ":Ctrl33GetMeasurementsOfDeviceInRoomInGivenPeriod" as C
+participant ":DeviceRecordsDTO" as DeviceRecordsDTO
+participant ":ActivityLogMapper" as ActivityLogMapper
+participant ":DeviceLogService" as DeviceLogService
+participant ":DeviceRepository" as DeviceRepository
+participant ":SensorRepository" as SensorRepository
+participant ":ActuatorRepository" as ActuatorRepository
+participant ":SensorActivityLogRepository" as SensorActivityLogRepository
+participant ":ActuatorActivityLogRepository" as ActuatorActivityLogRepository
+
+
+[o-> C : getAllLogsFromDevice(roomId: long, deviceId: long,\n dto: TimePeriodDTO)
+activate C
+C -> DeviceLogService: getAllLogsFromDevice(roomId: long, deviceId: long, start: ZonedDateTime, end: ZonedDateTime)
+
+activate DeviceLogService
+DeviceLogService -> DeviceRepository: findByID(deviceId: Long)
+activate DeviceRepository
+DeviceRepository --> DeviceLogService: device: Optional<Device>
+deactivate DeviceRepository
+DeviceLogService -> DeviceLogService: validateDeviceHasRoomId(roomId: long)
+
+DeviceLogService -> SensorRepository: findAllByDeviceId(deviceId: Long)
+activate SensorRepository
+SensorRepository --> DeviceLogService: sensors: Iterable<Sensor>
+deactivate SensorRepository
+
+loop sensors.size
+DeviceLogService -> SensorActivityLogRepository: findAllBySensorIdBetweenTimeStampAndTimeStamp(sensorId: Long, \nstart: ZonedDateTime, end: ZonedDateTime)
+activate SensorActivityLogRepository
+'SELECT * FROM activityLogs WHERE sensorId = :sensorId AND timeStamp BETWEEN :start AND :end;
+SensorActivityLogRepository --> DeviceLogService: readings: Iterable<SensorActivityLog>
+deactivate SensorActivityLogRepository
+
+loop readings.size
+DeviceLogService -> DeviceLogService: sensorData.add(reading: SensorActivityLog)
+end
+
+end
+
+'DeviceLogService -> ActivityLogMapper**: sensorLogAndMeasurementToDto(data: List<SensorActivityLog>)
+'activate ActivityLogMapper
+'ActivityLogMapper --> DeviceLogService: sensorResponse: List<SensorActivityLogDTO>
+'deactivate ActivityLogMapper
+
+DeviceLogService -> ActuatorRepository: findAllByDeviceId(deviceId: Long)
+activate ActuatorRepository
+ActuatorRepository --> DeviceLogService: actuators: Iterable<Actuator>
+deactivate ActuatorRepository
+
+loop actuators.size
+DeviceLogService -> ActuatorActivityLogRepository: findAllByActuatorIdBetweenTimeStampAndTimeStamp(actuatorId: Long)
+activate ActuatorActivityLogRepository
+ActuatorActivityLogRepository --> DeviceLogService: actuatorReadings: Iterable<ActuatorActivityLog>
+deactivate ActuatorActivityLogRepository
+
+loop actuatorReadings.size
+DeviceLogService -> DeviceLogService: actuatorData.add(actuatorReadings)
+end
+
+end
+
+'DeviceLogService -> ActivityLogMapper: actuatorLogAndMeasurementToDto(actuatorData)
+'activate ActivityLogMapper
+'ActivityLogMapper --> DeviceLogService: actuatorResponse: List<ActuatorActivityLogDTO>
+'deactivate ActivityLogMapper
+
+'DeviceLogService -> DeviceRecordsDTO**: DeviceRecordsDTO(response: List<SensorActivityLog>,\nactuatorResponse: List<ActuatorActivityLogDTO>)
+'activate DeviceRecordsDTO
+'DeviceRecordsDTO --> DeviceLogService: deviceRecordsDto: DeviceRecordsDTO
+'deactivate DeviceRecordsDTO
+
+DeviceLogService --> C: result: Pair<Iterable<ActuatorActivityLog>, \nIterable<SensorActivityLog>>
+deactivate DeviceLogService
+
+C -> ActivityLogMapper**: sensorLogAndMeasurementToDto(data: List<SensorActivityLog>)
+activate ActivityLogMapper
+ActivityLogMapper --> C: sensorResponse: List<SensorActivityLogDTO>
+deactivate ActivityLogMapper
+
+C -> ActivityLogMapper: actuatorLogAndMeasurementToDto(actuatorData)
+activate ActivityLogMapper
+ActivityLogMapper --> C: actuatorResponse: List<ActuatorActivityLogDTO>
+deactivate ActivityLogMapper
+
+C -> DeviceRecordsDTO**: DeviceRecordsDTO(response: Iterable<SensorActivityLog>,\nactuatorResponse: Iterable<ActuatorActivityLogDTO>)
+activate DeviceRecordsDTO
+DeviceRecordsDTO --> C: deviceRecordsDto: DeviceRecordsDTO
+deactivate DeviceRecordsDTO
+
+[o<-- C : deviceRecordsDto: DeviceRecordsDTO
+deactivate C
+
+@enduml

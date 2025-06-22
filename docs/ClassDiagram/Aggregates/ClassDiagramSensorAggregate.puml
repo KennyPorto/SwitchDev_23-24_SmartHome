@@ -1,0 +1,152 @@
+@startuml
+!theme toy
+
+package values{
+ interface Value<vo> {
+ toString() : String
+ setValue(String measured): boolean
+ }
+  interface ValueFactory<entity>{
+  createRangeActuatorInt (lowerLimit : int, upperLimit : int) : Value
+  createRangeActuatorFractional (lowerLimit : double, upperLimit : double) : Value
+  createWValue () : WValue
+  createPercentage () : PercentageValue
+  createCelsiusTemperature () : CelsiusTemperatureValue
+  createWhvalue () : WhValue
+  createKmhCardinalValue () : KmhCardinalValue
+  createWm2Value () : Wm2Value
+  }
+}
+
+package repositories {
+    class SensorRepository<entity>{
+    - _availableModels: List<String>;
+    - _sensorData: Map<SensorID, Sensor>;
+    + SensorRepository  (fileName : String)
+    - isValidArgument (fileName : String) : boolean
+    + save (sensor : Sensor) : Sensor
+    + findAll() : List<String>
+    + findById(sensorID : SensorID) : String
+    + existsById (sensorID : SensorID) : boolean
+    + findAllModels(): List<String>
+    + isModelAvailable(sensorModel : String): boolean
+    + findAllByDeviceId(deviceID : DeviceID): Iterable<Sensor>
+    }
+
+    class DeviceRepository<entity>{
+    ...
+    + existsById (deviceID : DeviceID) : boolean
+    }
+}
+
+package sensors{
+    class SensorFactory<entity>{
+    + createSensor (deviceID: DeviceID, name : SensorName, \nsensorID: SensorID, model: SensorModel, SensorTypeId: SensorTypeId) : Sensor
+    + createSensorName (name : String): Optional<SensorName>
+    + createSensorId (id : Long): Optional<SensorId>
+    + createSensorModel (model : String): Optional<SensorModel>
+    }
+
+     interface Sensor <root> {
+     getName() : String
+     getSensorTypeId () : SensorTypeId
+     getDeviceId(): DeviceID
+     }
+
+    entity TemperatureSensor<entity>{
+    - _name : SensorName;
+    - _sensorId : SensorId;
+    - _currentValue : Value;
+    - _deviceID : DeviceID;
+    - _sensorTypeId : SensorTypeId;
+     ...
+    }
+}
+
+package sensorType {
+    class SensorTypeFactory<entity>{
+    + createSensorTypeId (String typeName) : Optional<ActuatorTypeId>
+    ...
+    }
+}
+
+package device {
+    class DeviceFactory<entity>{
+    ...
+    + createDeviceId (long id) : Optional<DeviceId>
+    }
+ }
+
+package valueObject{
+    class SensorName<VO>{
+    + name : String;
+    + SensorName (name : String)
+    - validateArgument (name : String) : boolean
+    + equals (obj : Object) : boolean
+    }
+
+    class SensorModel<VO>{
+    + model : String;
+    + SensorModel (model : String)
+    - validateArgument (sensorModel : String) : boolean
+    + equals (obj : Object) : boolean
+    }
+
+    class DeviceID <VO>{
+    + id : long;
+     + SensorID (id : Long)
+     - validateArgument (sensorID: Long) : boolean
+     + equals (obj : Object) : boolean
+    }
+
+    class SensorID <VO>{
+     + id : long;
+     + SensorID (id : Long)
+     - validateArgument (sensorID: Long) : boolean
+     + equals (obj : Object) : boolean
+    }
+
+    class SensorTypeId<VO>{
+     + id : long;
+     + SensorTypeId (id : long)
+     - validateArgument (actuatorID: Long) : boolean
+     + equals (obj : Object) : boolean
+    }
+}
+package services{
+    class SensorService<entity>{
+      - _sensorRepository: SensorRepository
+      - _deviceRepository: DeviceRepository
+      - _sensorFactory: SensorFactory
+      - _deviceFactory: DeviceFactory
+      - _sensorTypeFactory: SensorTypeFactory
+      + SensorService(sensorRepository: SensorRepository): SensorService
+      + addSensor(sensorName: SensorName, deviceID: deviceID, sensorModel: SensorModel, sensorID : SensorID): Actuator
+      + findSensorByID(sensorID: SensorID): Sensor
+      + findSensorByName(sensorName: SensorName): Sensor
+      + findAll(): List<Sensor>
+    }
+}
+
+SensorRepository "1" o-- "1" SensorFactory : stores >
+SensorFactory "1" *.. "N" Sensor : uses >
+SensorFactory "1" *-up- "1" SensorName : has >
+SensorFactory "1" *-up- "1" SensorModel : has >
+SensorRepository "1" *-- "1" SensorModel : uses >
+SensorFactory "1" o.left. "1" DeviceRepository : uses >
+SensorFactory "1" *-- "1" DeviceID : uses >
+TemperatureSensor "1" *.left. "1" Sensor : implements >
+SensorFactory "1" *-- "1" TemperatureSensor : creates >
+TemperatureSensor "1" *.. "1" ValueFactory : uses >
+SensorService "1" *-- "1" SensorRepository : interacts >
+SensorService "1" *-- "1" DeviceRepository : interacts >
+SensorFactory "1" *-up- "1" SensorID : uses >
+SensorRepository "1" *-- "1" SensorID : uses >
+ValueFactory "1" *.left. "1" Value : uses >
+
+DeviceFactory "1" *-down- "1" DeviceID : uses >
+SensorTypeFactory "1" *-up- "1" SensorTypeId : uses >
+SensorService "1" *-- "1" SensorTypeFactory : interacts >
+SensorService "1" *-- "1" DeviceFactory : interacts >
+
+@enduml

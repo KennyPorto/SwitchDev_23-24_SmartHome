@@ -1,0 +1,240 @@
+@startuml
+!theme toy
+
+package controller {
+    class Ctrl07 {
+    - _sensorService : SensorService
+    + Ctrl07(sensorService : SensorService)
+    + addSensor(sensorDTO : SensorDTO) : boolean
+    }
+}
+
+package domain {
+    package device{
+        class Device <root> {
+        - _roomId : RoomId
+        - _deviceId : DeviceID
+        - _deviceName : DeviceName
+        - _deviceModel : DeviceModel
+        - _deviceStatus : DeviceStatus
+        - _deviceFactory : DeviceFactory
+        o Device(roomId: RoomId, deviceId: DeviceID, deviceName: DeviceName, deviceModel: DeviceModel, deviceFactory: DeviceFactory)
+        + getRoomId () : RoomId
+        + identity () : DeviceID
+        + getName () : DeviceName
+        + getModel () : DeviceModel
+        + getDeviceStatus () : DeviceStatus
+        + deactivatedDevice () : boolean
+        + equals (object : Object) : boolean
+        + hashCode () : int
+        + sameAs (object : Object) : boolean
+        }
+
+        class DeviceFactory <entity>{
+        + createDevice (roomId: RoomId, deviceID : DeviceID, deviceName : DeviceName, deviceModel : DeviceModel) : Device
+        + createDeviceId (id : long) : Optional <DeviceID>
+        + createDeviceName (name : String) : Optional<DeviceName>
+        + createDeviceModel (model : String) : Optional<DeviceModel>
+        + createDeviceStatus (activated : boolean) : DeviceStatus
+        }
+    }
+
+    package sensors{
+        class SensorFactory<entity>{
+        + createSensor(deviceId : DeviceId, sensorId : SensorId, sensorName : SensorName, sensorModel : SensorModel, sensorTypeId : SensorTypeId) : Sensor
+        + createSensorName (name : String) : Optional<SensorName>
+        + createSensorModel (model : String) : Optional<SensorModel>
+        + createSensorId (id : long) : Optional<SensorId>
+        }
+
+        interface Sensor <root> {
+        getName() : String
+        getSensorTypeId () : SensorTypeId
+        getDeviceId () : DeviceId
+        }
+    }
+
+
+
+    package sensorType {
+        class SensorType{
+        - _sensorTypeId : SensorTypeId
+        - _measurementUnit : MeasurementUnit
+        + SensorType (sensorTypeId : SensorTypeId, measurementUnit : MeasurementUnit)
+        + getMeasurementUnit () : MeasurementUnit
+        + identity () : SensorTypeId
+        + sameAs (object : Object) : boolean
+        }
+
+        class SensorTypeFactory{
+        + createSensorType (sensorTypeId : SensorTypeId, measurementUnit : MeasurementUnit) : SensorType
+        + createSensorTypeId (id : long) : Optional<SensorTypeId>
+        }
+    }
+
+    package valueObject{
+        class DeviceId<VO>{
+        + id : long
+        + DeviceId (id : long)
+        - validateArguments (id : long) : boolean
+        + equals (object : Object) : boolean
+        + hashCode () : int
+        }
+
+        class SensorModel<VO>{
+        + model : String
+        + SensorModel (model : String)
+        + equals (object : Object) : boolean
+        + hashCode () : int
+        }
+
+        class SensorName<VO>{
+        + name : String
+        + SensorName(name : String)
+        + equals (object : Object) : boolean
+        + hashCode () : int
+        }
+
+    class SensorId <VO>{
+        + id : long
+        + SensorId (id : long)
+        - validateArguments (id : long) : boolean
+        + equals (object : Object) : boolean
+        + hashCode () : int
+        }
+
+        class SensorTypeId <VO>{
+        + id : long
+        + SensorTypeId (id : long)
+        - validateArguments (id : long) : boolean
+        + toString() : String
+        + equals (object : Object) : boolean
+        + hashCode () : int
+        }
+    }
+
+'    package ddd{
+'        interface AggregateRoot{
+'        }
+'
+'        interface Repository{
+'        save (entity : T) : T
+'        findAll (id : ID) : Iterable<T>
+'        findById (ID : ID) : Optional<T>
+'        existsById (id : ID) : boolean
+'        }
+'
+'        interface Service<ID, DTO>{
+'        add (dto : DTO) : boolean
+'        findAll () : Iterable<DTO>
+'        findById (id : long) : DTO
+'        existsById (id : long) : Pair<Boolean, ID>
+'        }
+'
+'        interface ValueObject{
+'        }
+'
+'        interface DomainEntity{
+'        identity() : ID
+'        sameAs (object : Object) : boolean
+'        }
+'    }
+        enum MeasurementUnit{
+            Celsius,
+            Percentage,
+            Binary,
+            Speed,
+            Watts,
+            WattsPerHour
+        }
+}
+    package services{
+    class SensorService<entity>{
+        - _sensorRepository : SensorRepository
+        - _sensorFactory : SensorFactory
+        - _deviceRepository : DeviceRepository
+        - _deviceFactory : DeviceFactory
+        - _sensorTypeFactory : SensorTypeFactory
+        + SensorService(sensorRepository : SensorRepository, sensorFactory : SensorFactory, deviceRepository : DeviceRepository, deviceFactory : DeviceFactory, sensorTypeFactory : SensorTypeFactory) : SensorService
+        + add(sensorDTO : SensorDTO) : boolean
+        + findById (id : long) : Sensor
+        + existsById (sensorId : long) : Pair<Boolean, SensorId>
+        + findAll () : Iterable<Sensor>
+        }
+    }
+        package repository{
+             class SensorRepository<entity>{
+            - _availableModels : List<String>
+            - _sensorData : Map<SensorID, Sensor>
+            + SensorRepository(fileName : String) : SensorRepository
+            - isValidArgument(fileName : String) : boolean
+            + findAllModels () : List<String>
+            + isModelAvailable (model : String) : boolean
+            + save (sensor : Sensor) : Sensor
+            + findAll() : List<Sensor>
+            + findById (id : SensorId) : Optional<Sensor>
+            + existsById (id : SensorId) : boolean
+            + findAllByDeviceId (deviceId : DeviceId) : Iterable<Sensor>
+            }
+
+             class DeviceRepository<entity>{
+            - _data : Map<DeviceID, Device>
+            + save (entity : Device) : Device
+            + findAll () : Iterable<Device>
+            + findById (id : DeviceID) : Optional<Device>
+            + existsById (id : DeviceID) : boolean
+            + findAllByRoomId (roomId : RoomId) : Iterable<Device>
+            }
+        }
+
+   package dto{
+    class SensorDTO{
+    + deviceId : long
+    + sensorId : long
+    + sensorName : String
+    + sensorModel : String
+    + sensorType : String
+    + SensorDTO (deviceId : long, sensorId : long, sensorName : String, sensorModel : String, sensorType : String)
+    }
+   }
+
+Ctrl07 "1" *..  "1" SensorDTO : uses >
+Ctrl07 "1" *..  "1" SensorService : uses >
+SensorService "1" *..  "1" SensorDTO : uses >
+SensorService "1" *--  "1" SensorFactory : uses >
+DeviceFactory "1" *-down- "1" DeviceId : creates >
+'Device "1" ..down..> "1" AggregateRoot : implements >
+'Sensor "1" ..down..> "1" AggregateRoot : implements >
+'SensorName "1" ..down..> "1" ValueObject : implements >
+'SensorModel "1" ..down..> "1" ValueObject : implements >
+'SensorId "1" ..down..> "1" ValueObject : implements >
+'DeviceId "1" ..down..> "1" ValueObject : implements >
+'DeviceRepository "1" ..down..> "1" Repository : implements >
+'SensorRepositoryImpl "1" ..down..> "1" Repository : implements >
+'SensorService "1" ..down..> "1"Service : implements >
+'SensorType "1" ..down..> "1" AggregateRoot : implements >
+SensorTypeFactory "1" *-down- "1" SensorType : creates >
+SensorTypeFactory "1" *-down- "1" SensorTypeId : creates >
+'SensorTypeId "1" ..down..> "1" ValueObject : implements >
+SensorType "1" *-down- "1" MeasurementUnit : has >
+'DomainEntity "1" ..down..> "1" AggregateRoot : implements >
+SensorService "1" *-down- "1" SensorTypeFactory : uses >
+SensorService "1" *-down- "1" DeviceFactory : uses >
+DeviceFactory "1" *-down- "1" Device : creates >
+SensorFactory "1" *.. "N" Sensor : uses >
+SensorFactory "1" *-up- "1" SensorName : creates >
+SensorFactory "1" *-up- "1" SensorModel : creates >
+SensorRepository "1" *-- "1" SensorModel : uses >
+SensorFactory "1" *-- "1" DeviceId : uses >
+SensorService "1" *-- "1" SensorRepository : interacts >
+SensorService "1" *-- "1" DeviceRepository : interacts >
+SensorFactory "1" *-up- "1" SensorId : creates >
+SensorRepository "1" *-- "1" SensorId : uses >
+SensorFactory "1" *-up- "1" SensorTypeId : uses >
+SensorTypeFactory "1" *-up- "1" MeasurementUnit : uses >
+SensorType "1" *-up- "1" SensorTypeId : has >
+DeviceRepository "1" *-- "1" DeviceId : uses >
+DeviceRepository "1" *-- "1" Device : uses >
+Device "1" *-- "1" DeviceId : has >
+
+@enduml

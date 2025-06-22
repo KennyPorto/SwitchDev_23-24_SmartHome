@@ -1,0 +1,47 @@
+/* the underline on My Smart Home */
+.underline,
+.sideline {
+    position: relative;
+}
+
+.underline::before {
+    content: "";
+    position: absolute;
+    top: 83%;
+    width: var(--custom-underline-width, 23%);
+    left: 1ch;
+    height: 10px;
+    border-radius: var(--border-radius);
+    background: linear-gradient(
+            90deg,
+            var(--primary-color) 10%,
+            var(--tertiary-color) 90%
+    );
+    z-index: -1;
+}
+
+@media screen and (max-width: 500px) {
+    .underline::before {
+        width: var(--custom-underline-width, 53%);
+    }
+}
+
+.sideline::before {
+    content: "";
+    position: absolute;
+    transform: translateY(-50%);
+    top: 50%;
+    width: 15px;
+    left: -30px;
+    height: 25px;
+    border-radius: var(--border-radius);
+    background: linear-gradient(
+            90deg,
+            var(--primary-color) 10%,
+            var(--secondary-color) 90%
+    );
+}
+
+.sideline {
+    margin-inline-start: 30px;
+}

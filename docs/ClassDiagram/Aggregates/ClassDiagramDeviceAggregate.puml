@@ -1,0 +1,174 @@
+@startuml
+!theme toy
+
+package service {
+    class DeviceService {
+        - _deviceFactory: DeviceFactory
+        - _deviceRepo: DeviceRepository
+        - _roomFactory: RoomFactory
+        - _roomRepository: RoomRepository
+        + DeviceService(deviceFactory: DeviceFactory, deviceRepo: DeviceRepository, \nroomFactory: RoomFactory, roomRepository: RoomRepository)
+        + add(deviceDTO: DeviceDTO): boolean
+        + findAll(): Iterable<DeviceDTO>
+        + findById(id: Long): DeviceDTO
+        + existsById(id: Long): Pair<Boolean, DeviceID>
+        + getListDevicesByRoomId(id: long): Iterable<DeviceDTO>
+        + deactivateDevice(id: long): boolean
+    }
+}
+
+package repository {
+    class DeviceRepository {
+        - _data: Map<DeviceID, Device>
+        + save(entity: Device): Device
+        + findAll(): Iterable<Device>
+        + findById(id: DeviceID): Optional<DeviceID>
+        + existsById(id: DeviceID): boolean
+        + findAllByRoomId(roomId: RoomId): Iterable<Device>
+    }
+}
+
+package Room {
+    class RoomFactory {
+        + createRoomId(id: long): Optional<RoomId>
+        ...()
+    }
+}
+
+package device {
+    class Device {
+        - _roomId: RoomId
+        - _deviceID: DeviceID
+        - _deviceName: DeviceName
+        - _deviceModel: DeviceModel
+        - _deviceStatus: DeviceStatus
+        - _deviceFactory: DeviceFactory
+        # Device(roomId: RoomId, deviceID: DeviceID, deviceName: DeviceName, \ndeviceModel: DeviceModel, deviceFactory: DeviceFactory)
+        + getRoomId(): RoomId
+        + identity(): DeviceID
+        + getName(): DeviceName
+        + getModel(): DeviceModel
+        + getDeviceStatus(): DeviceStatus
+        + deactivateDevice(): boolean
+        + equals(object: Object): boolean
+        + hashCode(): int
+        + sameAs(object: Object): boolean
+    }
+
+    class DeviceFactory {
+        + createDevice(roomId: RoomId, deviceID: DeviceID, \ndeviceName: DeviceName, deviceModel: DeviceModel): Device
+        + createDeviceId(id: long): Optional<DeviceID>
+        + createDeviceName(name: String): Optional<DeviceName>
+        + createDeviceModel(model: String): Optional<DeviceModel>
+        + createDeviceStatus(activated: boolean): DeviceStatus
+    }
+}
+
+package valueObjects {
+    class DeviceID {
+        + id: long
+        + DeviceID(id: long)
+        - validateArgument(id: long)
+        + equals(object: Object): boolean
+        + hashCode(): int
+    }
+
+    class DeviceName {
+        + name: String
+        + DeviceName(name: String)
+        - validateArguments(name: String): boolean
+        + equals(object: Object)
+        + hashCode(): int
+    }
+
+    class DeviceModel {
+            + model: String
+            + DeviceName(model: String)
+            - validateArguments(model: String): boolean
+            + equals(object: Object)
+            + hashCode(): int
+    }
+
+    class DeviceStatus {
+            + activated: boolean
+            + DeviceStatus(activated: boolean)
+            + equals(object: Object)
+            + hashCode(): int
+    }
+
+    class RoomId {
+        + id: long
+        + RoomId(id: long)
+        - validateArguments(id: long): boolean
+        + equals(object: Object): boolean
+        + hashCode(): int
+    }
+}
+
+package dto {
+    class DeviceDTO {
+        + roomId: long
+        + id: long
+        + name: String
+        + model: String
+    }
+
+    class DeviceMapper {
+       + deviceToDto(device: Device): DeviceDTO
+       + Iterable<DeviceDTO> deviceListToDto(Iterable<Device> devices)
+    }
+}
+
+package ddd {
+    interface AggregateRoot
+    interface DomainEntity {
+        + identity(): ID
+        + sameAs(object: Object)): boolean
+    }
+    interface DomainId
+    interface Repository <ID extends DomainId, T extends AggregateRoot<ID>> {
+        + save(T entity): T
+        + findAll(): Iterable<T>
+        + findById(id: ID): Optional<T>
+        + existsById(id: ID): boolean
+    }
+    interface Service {
+        + add(dto: DTO): boolean
+        + findAll(): Iterable<DTO>
+        + findById(id: T): DTO
+        + existsById(id: T): Pair<Boolean, ID>
+    }
+    interface ValueObject
+}
+
+DeviceService "1" *-right- "1" DeviceRepository: has >
+DeviceService "1" o-right- "1" DeviceFactory: has >
+DeviceService "1" o-left- "1" RoomFactory: has >
+DeviceService "1" *-down- "1" DeviceDTO: uses >
+DeviceService "1" *-down- "1" Device: uses >
+DeviceFactory "1" *-down- "1" Device: creates >
+RoomFactory "1" *-down- "1" RoomId: creates >
+Device "1" *-down- "1" DeviceID: has >
+Device "1" *-down- "1" DeviceName: has >
+Device "1" *-down- "1" DeviceModel: has >
+Device "1" *-down- "1" DeviceStatus: has >
+Device "1" o-down- "1" RoomId: has >
+DeviceID -down.|> ValueObject
+DeviceID -down.|> DomainId
+RoomId -down.|> DomainId
+DeviceName -down.|> ValueObject
+DeviceModel -down.|> ValueObject
+DeviceStatus -down.|> ValueObject
+RoomId -down.|> ValueObject
+Device -up..|> AggregateRoot
+AggregateRoot -down|> DomainEntity
+AggregateRoot -down|> DomainId
+DeviceRepository -down..|> Repository
+DeviceService -down..|> Service
+DeviceMapper "1" -down-> "1" DeviceDTO: converts >
+DeviceService "1" o- "1" DeviceMapper: uses >
+
+
+
+
+@enduml

@@ -1,0 +1,96 @@
+@startuml
+!theme cerulean
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor white
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+participant ":Ctrl04" as Ctrl04
+participant ":ServiceSensorType" as ServiceSensorType
+participant ":SensorTypeFactory" as SensorTypeFactory
+participant ":SensorTypeId" as SensorTypeId
+participant ":SensorTypeName" as SensorTypeName
+participant ":MeasurementUnit" as MeasurementUnit
+participant ":SensorType" as SensorType
+participant ":SensorTypeRepository" as SensorTypeRepository
+
+title US04
+
+'ref over Ctrl04 : US3A: to List Rooms
+
+[o-> Ctrl04: addSensorType(sensorTypeDTO: SensorTypeDTO)
+activate Ctrl04
+Ctrl04 -> ServiceSensorType: addSensorType(sensorTypeDTO: SensorTypeDTO)
+activate ServiceSensorType
+
+ServiceSensorType -> SensorTypeFactory: createSensorType(sensorTypeDTO.id: long, \nsensorTypeDTO.name: String, \nsensorTypeDTO.unit: String)
+activate SensorTypeFactory
+
+SensorTypeFactory -> SensorTypeId**: SensorTypeId(id: long))
+activate SensorTypeId
+SensorTypeId --> SensorTypeFactory: SensorTypeId
+deactivate SensorTypeId
+
+SensorTypeFactory -> SensorTypeName**: SensorName(name: SensorTypeDTO)
+activate SensorTypeName
+SensorTypeName --> SensorTypeFactory: SensorTypeName
+deactivate SensorTypeName
+SensorTypeFactory --> ServiceSensorType: SensorType
+
+SensorTypeFactory -> MeasurementUnit**: MeasurementUnit.valueOf(unit: String)
+activate MeasurementUnit
+MeasurementUnit --> SensorTypeFactory: MeasurementUnit
+deactivate MeasurementUnit
+
+SensorTypeFactory -> SensorType**: SensorType(sensorTypeId: SensorTypeId, \nsensorTypeName: SensorTypeName, \nmeasurementUnit :MeasurementUnit)
+activate SensorType
+SensorType --> SensorTypeFactory: SensorType
+deactivate SensorType
+
+SensorTypeFactory --> ServiceSensorType: SensorType
+deactivate SensorTypeFactory
+
+ServiceSensorType -> SensorTypeRepository: existsById(sensorTypeId: SensorTypeId)
+activate SensorTypeRepository
+SensorTypeRepository --> ServiceSensorType: false
+deactivate SensorTypeRepository
+
+
+ServiceSensorType -> SensorTypeRepository: save(sensorType: SensorType)
+activate SensorTypeRepository
+SensorTypeRepository --> ServiceSensorType: SensorType
+deactivate SensorTypeRepository
+
+ServiceSensorType -> SensorTypeMapper: sensorTypeToDto(sensorType: SensorType): SensorTypeDTO
+SensorTypeMapper --> ServiceSensorType: SensorTypeDTO
+
+ServiceSensorType --> Ctrl04: SensorTypeDTO
+deactivate ServiceSensorType
+[o<-- Ctrl04 : SensorTypeDTO
+
+[o-> Ctrl04: getAllSensorTypes()
+Ctrl04 -> ServiceSensorType: getAllSensorTypes()
+activate ServiceSensorType
+ServiceSensorType -> SensorTypeRepository: findAll()
+activate SensorTypeRepository
+SensorTypeRepository --> ServiceSensorType: Iterable<SensorType> sensorTypes
+deactivate SensorTypeRepository
+
+ServiceSensorType --> Ctrl04: Iterable<SensorTypeDTO> sensorTypesDTO
+deactivate ServiceSensorType
+[o<-- Ctrl04: Iterable<SensorTypeDTO> sensorTypesDTO
+deactivate Ctrl04
+
+@enduml

@@ -1,0 +1,77 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam CollectionsBorderColor #000000
+skinparam CollectionsBackgroundColor #2471A3
+skinparam CollectionsFontColor #EEF2F7
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+title UC37 - CloseBlindRoller
+
+participant ":DeviceController" as C
+participant ":ActuatorActService" as ActuatorActService
+participant ":DeviceRepository" as DeviceRepository
+
+
+[o-> C : closeBlindRoller(deviceId: long,\ndto: CloseBlindRollerDTO)
+activate C
+C -> ActuatorActService: closeBlindRoller(deviceId: DeviceId, \nactuatorId : ActuatorId, measurement: Measurement)
+activate ActuatorActService
+
+ActuatorActService -> DeviceRepository: validateDevice(deviceId: DeviceId)
+
+
+group hasScaleSensor
+ActuatorActService --> ActuatorActService: hasScaleSensor (deviceID: DeviceId)
+note right: See 37_hasScaleSensor diagram
+end
+
+group getBlindRollerActuator
+ActuatorActService --> ActuatorActService: getBlindRollerActuator (actuatorId: ActuatorId)
+note right: See 37_getBlindRollerActuator diagram
+end
+
+group verifyLastMeasurement
+ActuatorActService-->ActuatorActService: verifyLastMeasurement(measurement : Measurement, blindRollerActuator : Actuator)
+note right: See 37_verifyLastMeasurement diagram
+end
+
+group updateBlindRoller
+ActuatorActService --> ActuatorActService: updateBlindRoller(measurement: Measurement, blindRollerActuator: BlindRollerActuator)
+note right: See 37_updateBlindRoller diagram
+end
+
+group saveAction
+ActuatorActService --> ActuatorActService: saveAction (actuator: Actuator, timeStamp: Timestamp, measurement: Measurement)
+note right: See 37_updateBlindRoller diagram
+end
+
+ActuatorActService --> C : closeBlindRoller(actuatorActivityLog: ActuatorActivityLog)
+deactivate ActuatorActService
+
+C -> ActivityMapper: toDto(actuatorActivityLog: ActuatorActivityLog)
+activate ActivityMapper
+ActivityMapper --> C : actuatorActivityLogDto: ActuatorActivityLogDto
+deactivate ActivityMapper
+
+[o<-- C : actuatorActivityLogDto: ActuatorActivityLogDto
+deactivate C
+
+
+@enduml

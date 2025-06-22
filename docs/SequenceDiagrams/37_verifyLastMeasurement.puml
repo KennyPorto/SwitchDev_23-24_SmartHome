@@ -1,0 +1,47 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam CollectionsBorderColor #000000
+skinparam CollectionsBackgroundColor #2471A3
+skinparam CollectionsFontColor #EEF2F7
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+autonumber
+
+title VerifyLastMeasurement (actuatorId: ActuatorId)
+
+ActuatorActService-->ActuatorActService: isNumeric(measurement : String) : boolean
+
+ActuatorActService -> BlindRollerActuator: getId : ActuatorId
+activate BlindRollerActuator
+BlindRollerActuator --> ActuatorActService: <font color="green">actuatorId: long </font>
+deactivate BlindRollerActuator
+
+ActuatorActService -> ActuatorActivityLogRepository: findTopByActuatorIdOrderByTimeStampDesc(id: Long)
+activate ActuatorActivityLogRepository
+ActuatorActivityLogRepository --> ActuatorActService: <font color="green">blindRollerActMostRecentLog: ActuatorActivityLog </font>
+deactivate ActuatorActivityLogRepository
+
+ActuatorActService -> Measurement: getMeasurement() : double
+activate Measurement
+Measurement --> ActuatorActService: <font color="green">measurement: double </font>
+deactivate Measurement
+
+ActuatorActService -> ActuatorActService: requestPercentage < currentPercentage
+
+@enduml

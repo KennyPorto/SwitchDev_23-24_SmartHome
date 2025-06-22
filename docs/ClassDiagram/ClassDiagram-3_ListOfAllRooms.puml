@@ -1,0 +1,166 @@
+@startuml
+!theme toy
+
+package controller {
+    class Ctrl03 {
+        - _roomService: RoomService
+        + Ctrl03(roomService: RoomService)
+        + getAllRooms(id: long): Iterable<RoomDTO>
+    }
+}
+
+package service {
+    class RoomService {
+        - _roomRepository: RoomRepository
+        - _roomFactory: RoomFactory
+        - _houseFactory: HouseFactory
+        - _houseRepository: HouseRepository
+        + RoomService(_roomRepository: RoomRepository, _roomFactory: RoomFactory, \n_houseFactory: HouseFactory, _houseRepository: HouseRepository)
+        + add(roomDTO: RoomDTO): boolean
+        + findAll(): Iterable<RoomDTO>
+        + findById(id: Long): RoomDTO
+        + existsById(id: Long): Pair<Boolean, RoomId>
+        + getListRoomsByHouseId(id: long): Iterable<RoomDTO>
+    }
+}
+
+package repository {
+    class RoomRepository {
+        - _rooms: Map<RoomId, Room>
+        + save(room: Room): Room
+        + findAll(): Iterable<Room>
+        + findById(id: RoomId): Optional<Room>
+        + existsById(id: RoomId): boolean
+        + findAllByHouseId(houseId: HouseId): Iterable<Room>
+    }
+
+    class HouseRepository {
+        - _houses: Map<HouseId, House>
+        + existsById(houseId: HouseId): boolean
+        ...()
+    }
+}
+
+package dto {
+    class RoomDTO {
+        + roomName: String
+        + roomId: long
+        + houseId: long
+        + houseFloor: String
+        + height: double
+        + length: double
+        + width: double
+    }
+
+    class RoomMapper {
+        + roomToDto(room: Room): RoomDTO
+        + roomListToDto(rooms: Iterable<Room>): Iterable<RoomDTO>
+    }
+}
+
+package domain {
+    class Room {
+        - _roomName: RoomName
+        - _roomId: RoomId
+        - _houseId: HouseId
+        - _houseFloor: Floor
+        - _dimensions: Dimensions
+        + Room(roomName: RoomName, roomId: RoomId, \nhouseId: HouseId, houseFloor: Floor, dimensions: Dimensions)
+        + identity(): RoomId
+        + sameAs(object: Object): boolean
+        + getRoomName(): RoomName
+        + getHouseId(): HouseId
+        + getHouseFloor(): Floor
+        + getDimensions(): Dimensions
+    }
+
+    class RoomFactory {
+        + createRoom(roomName: RoomName, roomId: RoomId, \nhouseId: HouseId, houseFloor: Floor, dimensions: Dimensions)
+        + createRoomName(name: String): Optional<RoomName>
+        + createRoomId(id: long): Optional<RoomId>
+        + createFloor(floor: String): Optional<Floor>
+        + createDimensions(height: double, width: double, length: double): Optional<Dimensions>
+    }
+}
+
+package valueObjects {
+    class RoomName <vo> {
+            - _name: String
+            + RoomName(name: String): RoomName
+            - validateArguments(name: String): boolean
+            + equals(object: Object): boolean
+        }
+        class HouseID <vo> {
+            - _id: long
+            + HouseID(id: long): void
+            - validateArguments(id: long): boolean
+            + equals(object: Object): boolean
+
+        }
+        class Floor <vo> {
+            - _floor: String
+            + Floor(floor: String): Floor
+            - validateArguments(floor: String): boolean
+            + equals(object: Object): boolean
+        }
+        class Dimensions <vo> {
+            - _width: int
+            - _length: int
+            + Dimensions(width: int, length: int): Dimensions
+            - validateArguments(width: double, length: double): boolean
+            + equals(object: Object): boolean
+        }
+
+        class RoomID <vo> {
+            - _id: long
+            + RoomID(id: long): void
+            - validateArguments(id: long): boolean
+            + equals(object: Object): boolean
+        }
+}
+
+package ddd {
+    interface AggregateRoot
+    interface DomainEntity {
+        + identity(): ID
+        + sameAs(object: Object)): boolean
+    }
+    interface DomainId
+    interface Repository <ID extends DomainId, T extends AggregateRoot<ID>> {
+        + save(T entity): T
+        + findAll(): Iterable<T>
+        + findById(id: ID): Optional<T>
+        + existsById(id: ID): boolean
+    }
+    interface Service {
+        + add(dto: DTO): boolean
+        + findAll(): Iterable<DTO>
+        + findById(id: T): DTO
+        + existsById(id: T): Pair<Boolean, ID>
+    }
+    interface ValueObject
+}
+
+Ctrl03 "1" *-down- "1" RoomService: has >
+RoomService "1" o-right- "1" RoomRepository: uses >
+RoomService "1" o-right- "1" HouseRepository: uses >
+RoomFactory "1" *-- "*" Room: creates
+Room "1" *-- "1" RoomName : uses >
+Room "1" *-- "1" HouseID : uses >
+Room "1" *-- "1" Floor : uses >
+Room "1" *-- "1" Dimensions : uses >
+Room "1" *-- "1" RoomID : uses >
+RoomService *-- RoomFactory: uses >
+RoomService *-- RoomMapper: uses >
+RoomMapper *-- RoomDTO: uses >
+AggregateRoot -|> DomainEntity
+AggregateRoot -|> DomainId
+RoomId ..|> ValueObject
+RoomName ..|> ValueObject
+Floor ..|> ValueObject
+Dimensions ..|> ValueObject
+HouseID ..|> ValueObject
+RoomService ..|> Service
+RoomRepository ..|> Repository
+
+@enduml

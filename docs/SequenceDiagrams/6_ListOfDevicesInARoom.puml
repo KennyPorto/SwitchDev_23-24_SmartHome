@@ -1,0 +1,62 @@
+@startuml
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+title US06 - Get List of Devices in a Room
+
+participant ":Ctrl06" as Ctrl06
+participant ":DeviceService" as DeviceService
+participant ":DeviceMapper" as DeviceMapper
+participant ":DeviceRepository" as DeviceRepository
+participant ":RoomFactory" as RoomFactory
+participant ":RoomId" as RoomId
+
+ref over Ctrl06 : US03: Get List of Rooms in the House
+
+
+[o-> Ctrl06: getListDevicesByRoom(roomId: long)
+activate Ctrl06
+Ctrl06 -> DeviceService: getListDevicesByRoomId(id: long)
+activate DeviceService
+DeviceService -> RoomFactory: createRoomId(roomId: long)
+activate RoomFactory
+RoomFactory -> RoomId**: RoomId(long id)
+activate RoomId
+RoomId -> RoomId: validateArguments(long id)
+RoomId --> RoomFactory: Optional<RoomId>
+deactivate RoomId
+RoomFactory --> DeviceService: Optional<RoomId>
+deactivate RoomFactory
+DeviceService -> DeviceRepository: findAllByRoomId(roomId: RoomId)
+activate DeviceRepository
+DeviceRepository --> DeviceService: Iterable<Device>
+deactivate DeviceRepository
+DeviceService -> DeviceMapper: deviceListToDTO(devices: Iterable<Device>)
+activate DeviceMapper
+DeviceMapper --> DeviceService: Iterable<DeviceDTO>
+deactivate DeviceMapper
+DeviceService --> Ctrl06: Iterable<DeviceDTO>
+deactivate DeviceMapper
+
+deactivate DeviceService
+[o<-- Ctrl06 : Iterable<DeviceDTO>
+
+
+
+@enduml

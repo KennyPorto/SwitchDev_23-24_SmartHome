@@ -1,0 +1,61 @@
+@startuml
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+title UC08A - Deactivate a device
+
+ref over ":Ctrl08" : US06: Get list of devices in a room
+
+[o-> ":Ctrl08" : deactivateDevice(deviceID: long)
+activate ":Ctrl08"
+
+":Ctrl08" -> ":DeviceService" : deactivateDevice (deviceID: long)
+activate ":DeviceService"
+":DeviceService" -> ":DeviceFactory" : createDeviceID(deviceID: long)
+activate ":DeviceFactory"
+":DeviceFactory" -> ":DeviceId"**:DeviceId(id: long)
+activate ":DeviceId"
+":DeviceId" -> ":DeviceId": validateArguments(long id)
+":DeviceId" --> ":DeviceFactory": <font color="green">DeviceId</font>
+deactivate ":DeviceId"
+":DeviceFactory" --> ":DeviceService": <font color="green">DeviceId</font>
+deactivate ":DeviceFactory"
+":DeviceService" -> ":DeviceRepository" : findByID(deviceID: DeviceID)
+activate ":DeviceRepository"
+":DeviceRepository" -> ":DeviceRepository" : existsByID(deviceID: DeviceID)
+":DeviceRepository" --> ":DeviceService" : <font color="green">Device</font>
+deactivate ":DeviceRepository"
+":DeviceService" -> ":Device" : deactivateDevice()
+activate ":Device"
+":DeviceFactory" <- ":Device" : createDeviceStatus(false)
+activate ":DeviceFactory"
+":DeviceFactory" -> ":DeviceStatus"**: createDeviceStatus
+activate ":DeviceStatus"
+":DeviceStatus" --> ":DeviceFactory": <font color="green">DeviceStatus</font>
+deactivate ":DeviceStatus"
+":DeviceFactory" -> ":Device": true
+deactivate ":DeviceFactory"
+":Device" --> ":DeviceService": <font color="green">true</font>
+deactivate ":Device"
+":DeviceService" --> ":Ctrl08": <font color="green">true</font>
+deactivate ":DeviceService"
+[o<-- ":Ctrl08" : <font color="green"> true </font>
+deactivate ":Ctrl08"
+
+
+@enduml

@@ -1,0 +1,765 @@
+{
+	"info": {
+		"_postman_id": "3a8eefb4-bdc8-4ea7-91c6-f6153b0b833e",
+		"name": "SwitchDev2023-2024_SmartHome_DevPOST",
+		"description": "|  |  |\n| --- | --- |\n|  |  |",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25584133"
+	},
+	"item": [
+		{
+			"name": "House",
+			"item": [
+				{
+					"name": "add house",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"street\": \"Rua da Telha\",\r\n    \"doorNumber\": \"1\",\r\n    \"zipCode\": \"4430-548\",\r\n    \"city\": \"Porto\",\r\n    \"country\": \"Portugal\",\r\n    \"latitude\": 41.17,\r\n    \"longitude\": -8.60\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/houses",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"houses"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add house2",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"street\": \"Rua do ISEP\",\r\n    \"doorNumber\": \"33\",\r\n    \"zipCode\": \"4430-548\",\r\n    \"city\": \"Porto\",\r\n    \"country\": \"Portugal\",\r\n    \"latitude\": 12.17,\r\n    \"longitude\": -8.60\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/houses",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"houses"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Room",
+			"item": [
+				{
+					"name": "add indoor room",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"roomName\": \"Dining Room\",\r\n    \"houseId\": 1,\r\n    \"houseFloor\": \"ground floor\",\r\n    \"height\": 1.6,\r\n    \"length\": 2.0,\r\n    \"width\": 3.5,\r\n    \"outdoorIndoor\": \"INDOOR\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/rooms",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"rooms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add Outdoor Room",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"roomName\": \"Garden\",\r\n    \"houseId\": 1,\r\n    \"houseFloor\": \"ground floor\",\r\n    \"height\": 1.6,\r\n    \"length\": 2.0,\r\n    \"width\": 3.5,\r\n    \"outdoorIndoor\": \"OUTDOOR\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/rooms",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"rooms"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Device",
+			"item": [
+				{
+					"name": "add indoor device",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"roomId\": 1,\r\n    \"deviceModel\": \"Power Meter\",\r\n    \"deviceName\": \"House PM\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/devices",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"devices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add indoor device blind roller",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"roomId\": 1,\r\n    \"deviceModel\": \"BlindRoller\",\r\n    \"deviceName\": \"Blind Roller Device\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/devices",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"devices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add outdoor device",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"roomId\": 2,\r\n    \"deviceModel\": \"Temp Meter\",\r\n    \"deviceName\": \"House Temp meter\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/devices",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"devices"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SensorType",
+			"item": [
+				{
+					"name": "add sensorType temp",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sensorTypeId\": \"TemperatureSensor\",\r\n    \"measurementUnit\": \"Celsius\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensor-types",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensor-types"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add sensorType percentage",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sensorTypeId\": \"ScaleSensor\",\r\n    \"measurementUnit\": \"Percentage\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensor-types",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensor-types"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Sensor",
+			"item": [
+				{
+					"name": "add instant power sensor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"s1\",\r\n    \"model\": \"TemperatureSensor\",\r\n    \"deviceId\": 1,\r\n    \"sensorType\": \"Instant Power\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensors",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add temp sensor indoor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Room Temperature Sensor\",\r\n    \"model\": \"TemperatureSensor\",\r\n    \"deviceId\": 1,\r\n    \"sensorType\": \"TemperatureSensor\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensors",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add temp sensor outdoor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Garder Temperature Sensor\",\r\n    \"model\": \"TemperatureSensor\",\r\n    \"deviceId\": 2,\r\n    \"sensorType\": \"TemperatureSensor\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensors",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add grid power meter sensor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"s1\",\r\n    \"model\": \"TemperatureSensor\",\r\n    \"deviceId\": 1,\r\n    \"sensorType\": \"Power Meter\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensors",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensors"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add scale sensor",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Blind Roller Scale Sensor\",\r\n    \"model\": \"ScaleSensor\",\r\n    \"deviceId\": 1,\r\n    \"sensorType\": \"ScaleSensor\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensors",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensors"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Actuator",
+			"item": [
+				{
+					"name": "add actuator",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"name\",\r\n    \"model\": \"BlindRollerActuator\",\r\n    \"deviceId\": 1,\r\n    \"actuatorType\": \"BlindRoller\",\r\n    \"currentValue\": 100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/actuators",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"actuators"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add Range_Int_actuator",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Window Latch Actuator\",\r\n    \"model\": \"RangeActuatorInt\",\r\n    \"deviceId\": 1,\r\n    \"actuatorType\": \"RangeActuatorInt\",\r\n    \"lowerLimit\": 0,\r\n    \"upperLimit\": 10\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/actuators",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"actuators"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add Range_Fract_actuator",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Ventilator Angle Ajuster\",\r\n    \"model\": \"RangeActuatorDecimal\",\r\n    \"deviceId\": 3,\r\n    \"actuatorType\": \"RangerActuatorFractional\",\r\n    \"lowerLimitFractional\": -50.5,\r\n    \"upperLimitFractional\": 50.5\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/actuators",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"actuators"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SensorActivityLog",
+			"item": [
+				{
+					"name": "add sensor log instant power",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sensorId\": 1,\r\n    \"timeStamp\": \"2024-06-04T21:00:00.00Z\",\r\n    \"measurement\": \"-25.0\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensor-activity-logs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensor-activity-logs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add sensor log outside temp",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sensorId\": 4,\r\n    \"timeStamp\": \"2024-05-04T21:00:00.00Z\",\r\n    \"measurement\": \"25.0\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensor-activity-logs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensor-activity-logs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add sensor log inside temp",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sensorId\": 3,\r\n    \"timeStamp\": \"2024-05-04T21:00:00.00Z\",\r\n    \"measurement\": \"21.0\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensor-activity-logs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensor-activity-logs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add sensor log power meter",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"sensorId\": 2,\r\n    \"timeStamp\": \"2024-05-04T21:01:00.00Z\",\r\n    \"measurement\": \"50.0\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/sensor-activity-logs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"sensor-activity-logs"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ActuatorActivityLog",
+			"item": [
+				{
+					"name": "add actuator log",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"actuatorId\": 1,\r\n    \"timeStamp\": \"2024-06-05T23:44:28.513805300Z\",\r\n    \"measurement\": \"100.0\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/actuator-activity-logs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"actuator-activity-logs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add actuator log Copy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"actuatorId\": 1,\r\n    \"timeStamp\": \"2024-05-05T23:44:28.513805300Z\",\r\n    \"measurement\": \"75.0\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/v1/actuator-activity-logs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"v1",
+								"actuator-activity-logs"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

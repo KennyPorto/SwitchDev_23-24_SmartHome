@@ -1,0 +1,127 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam CollectionsBorderColor #000000
+skinparam CollectionsBackgroundColor #2471A3
+skinparam CollectionsFontColor #EEF2F7
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+title UC36 - Peak power consumption of the house, in a given period
+
+participant ":HouseController" as C
+participant ":PeakPowerDTO" as PeakPowerDTO
+participant ":PeakPowerService" as PeakPowerService
+participant ":HouseRepository" as HouseRepository
+participant ":RoomRepository" as RoomRepository
+participant ":DeviceRepository" as DeviceRepository
+participant ":SensorRepository" as SensorRepository
+participant ":ActivityLogFactory" as ActivityLogFactory
+
+[o-> C : findPeakPower(houseId: long, \nstart: ZonedDateTime, \nend: ZonedDateTime, \ndelta: long)
+note right: Value Objects to pass \nto the service are instantiated \nin the Controller. TimePeriodDto has \nthe acceptable delta inside.
+activate C
+
+C -> PeakPowerService: findPeakPower(houseId: HouseId, \nstart: ZonedDateTime, \nend: ZonedDateTime, \ndelta: long)
+activate PeakPowerService
+
+group (delta <= 9000)
+PeakPowerService -> PeakPowerService: throw new IllegalArgumentException(\n"Minimum delta is 9000sec (15minutes)")
+end
+
+PeakPowerService -> HouseRepository: existsById(id: HouseId)
+activate HouseRepository
+HouseRepository --> PeakPowerService: house: Optional<House>
+deactivate HouseRepository
+
+PeakPowerService -> RoomRepository: findAllByHouseId(id: HouseId)
+activate RoomRepository
+RoomRepository --> PeakPowerService: rooms: Iterable<Room>
+deactivate RoomRepository
+
+loop rooms.size
+PeakPowerService -> DeviceRepository: findAllByRoomId(roomId: RoomId)
+activate DeviceRepository
+DeviceRepository --> PeakPowerService: devices: Iterable<Device>
+deactivate DeviceRepository
+
+loop devices.size
+PeakPowerService -> PeakPowerService: houseDevices.add(device)
+end
+end
+
+== START: Replaceable with the logic of DeviceLogService, running inside a loop with each roomId/deviceId and the given time frame ==
+loop houseDevices.size
+PeakPowerService -> SensorRepository: findAllByDeviceIdAndSensorTypeId(deviceId: long, sensorTypeId: String)
+activate SensorRepository
+SensorRepository --> PeakPowerService: instantPowerSensors: Iterable<Sensor>
+deactivate SensorRepository
+loop powerMeterSensors.size
+PeakPowerService -> PeakPowerService: powerMeterIds.add(\ninstantPowerSensors.identity().id)
+end
+end
+
+loop houseDevices.size
+PeakPowerService -> SensorRepository: findAllByDeviceIdAndSensorTypeId(deviceId: long, sensorTypeId: String)
+activate SensorRepository
+SensorRepository --> PeakPowerService: powerMeterSensors: Iterable<Sensor>
+deactivate SensorRepository
+loop instantPowerSensors.size
+PeakPowerService -> PeakPowerService: instantSensorIds.add(\ninstantPowerSensors.identity().id)
+end
+end
+
+loop instantSensorIds.size
+PeakPowerService -> SensorActivityLogRepository: findAllBySensorIdAndTimeStampBetween(long sensorId, ZonedDateTime startDate, ZonedDateTime endDate)
+activate SensorActivityLogRepository
+SensorActivityLogRepository --> PeakPowerService: consumptionLogs: Iterable<SensorActivityLog>
+
+loop consumptionLogs.size
+deactivate SensorActivityLogRepository
+PeakPowerService -> PeakPowerService: consumptionLogsCombinedList.add(consumptionLog: SensorActivityLog)
+end
+end
+
+loop powerMeterIds.size
+PeakPowerService -> SensorActivityLogRepository: findAllBySensorIdAndTimeStampBetween(long sensorId, ZonedDateTime startDate, ZonedDateTime endDate)
+activate SensorActivityLogRepository
+SensorActivityLogRepository --> PeakPowerService: meterLogs: Iterable<SensorActivityLog>
+deactivate SensorActivityLogRepository
+
+loop meterLogs.size
+PeakPowerService -> PeakPowerService: meterLogsCombinedList.add(meterLog: SensorActivityLog)
+end
+end
+== END: Replaceable with the logic of DeviceLogService, running inside a loop with each roomId/deviceId and the given time frame ==
+
+PeakPowerService -> PeakPowerService: getInstantPowerConsumption(\nconsumptionLogs: List<SensorActivityLog>,\nmeterLogs: List<SensorActivityLog>, \ndelta: long): double
+note right: Please check attached flowchart
+
+PeakPowerService --> C: instantPowerConsumption: double
+deactivate PeakPowerService
+
+C -> PeakPowerDTO**: new PeakPowerDTO
+activate PeakPowerDTO
+PeakPowerDTO --> C: peakPowerDTO: PeakPowerDTO
+deactivate PeakPowerDTO
+
+[o<-- C : peakPowerDTO: PeakPowerDTO
+deactivate C
+
+
+@enduml

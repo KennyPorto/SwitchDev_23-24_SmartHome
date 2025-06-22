@@ -1,0 +1,17 @@
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2rem;
+}
+
+.error {
+    color: var(--red-color);
+    text-align: center;
+    gap: var(--spacing);
+}
+
+.errorText {
+    font-size: 1.5rem;
+    color: var(--text-color);
+}

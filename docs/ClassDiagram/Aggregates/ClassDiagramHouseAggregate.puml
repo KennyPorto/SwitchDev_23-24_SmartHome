@@ -1,0 +1,130 @@
+@startuml
+!theme toy
+!pragma layout smetana
+
+package ddd {
+    interface ValueObject{
+    }
+
+    interface AggregateRoot {
+    }
+}
+
+package house{
+    class House <root> {
+    - _houseId: HouseId;
+    - _address: Address;
+    - _gps: Gps;
+    # House(houseId: HouseId, address: Address, gps: Gps): void;
+    + getAddress(): Address;
+    + getGPS(): Gps;
+    + configureAddress(street: String, doorNumber: String, zipCode: String, city: String, country: String): void;
+    + configureGPS(latitude: double, longitude: double): void;
+    + identity(): HouseId;
+    + sameAs(object: Object): boolean;
+    }
+
+    class HouseFactory {
+    + createHouse(houseID: HouseID): House;
+    + createId(id: long): Optional<HouseID>;
+    + createAddress(street: String, doorNumber: String, zip: String, city: String, country: String): Optional<Address>;
+    + createGPS(latitude: double, longitude: double): Optional<Gps>;
+    }
+}
+
+package services{
+    class HouseService {
+    - _houseRepository: HouseRepository;
+    - _houseFactory: HouseFactory;
+    + HouseService(houseRepository: HouseRepository, HouseFactory houseFactory): void;
+    + configureLocation(houseId: long, addressDTO: AddressDTO, gpsDTO: GpsDTO): boolean;
+    + add(houseDTO: HouseDTO): boolean;
+    + findAll(): Iterable<HouseDTO>;
+    + findById(id: Long): HouseDTO;
+    + existsById(id: Long): Pair<Boolean, String>;
+    }
+}
+
+package repositories{
+    class HouseRepository {
+    - _houses: Map<HouseId, House>;
+    + save(house: House): House;
+    + findAll(): Iterable<House>;
+    + existsById(houseId: HouseID): boolean;
+    + findById(houseId: HouseID): Optional<House>;
+    }
+}
+
+package valueObject {
+
+    class HouseId <VO> {
+    + id: long;
+    + HouseId(id: long): void;
+    - validateArguments(id: long): boolean;
+    + equals(object: Object): boolean;
+    + hashCode(): int;
+    }
+
+    class Address <VO> {
+    + street: String;
+    + doorNumber: String;
+    + zipCode: String;
+    + city: String;
+    + country: String;
+    - _zipCodeValidator: ZipCodeValidator;
+    + Address(street: String, doorNumber: String, zipCode: String, city: String, country: String): void;
+    - validateArguments(street: String, doorNumber: String, zipCode: String, city: String, country: String): boolean;
+    + equals(object: Object): boolean;
+    + hashCode(): int;
+    }
+
+    class Gps <VO> {
+    + latitude: double;
+    + longitude: double;
+    + Gps(latitude: double, longitude: double): void;
+    - validateArguments(latitude: double, longitude: double): boolean;
+    + equals(object: Object): boolean;
+    + hashCode(): int;
+    }
+
+    class PortugalZipCode <VO> {
+    +validateZipCode(zipCode: String): boolean;
+    }
+
+    class SpainZipCode <VO> {
+    +validateZipCode(zipCode: String): boolean;
+    }
+
+    class USAZipCode <VO> {
+    +validateZipCode(zipCode: String): boolean;
+    }
+
+    class CanadaZipCode <VO> {
+    +validateZipCode(zipCode: String): boolean;
+    }
+
+    interface ZipCodeValidator {
+    +validateZipCode(zipCode: String): boolean;
+    }
+}
+
+House "1" *-- "1" HouseId : has >
+House "1" *-- "1" Address : has >
+House "1" *-- "1" Gps : has >
+HouseRepository "1" o-- "many" House : stores >
+HouseFactory "1" *-- "1" House : creates >
+HouseService "1" *-- "1" HouseRepository : interacts >
+HouseService "1" o-- "1" HouseFactory : uses >
+
+House ..down|> AggregateRoot
+HouseId ..down|> ValueObject
+Address ..down|> ValueObject
+Gps ..down|> ValueObject
+
+Address "1" *-- "1" ZipCodeValidator : has >
+PortugalZipCode ..up|> ZipCodeValidator
+SpainZipCode ..up|> ZipCodeValidator
+USAZipCode ..up|> ZipCodeValidator
+CanadaZipCode ..up|> ZipCodeValidator
+
+@enduml

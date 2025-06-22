@@ -1,0 +1,131 @@
+#root {
+    display: grid;
+    min-height: 100vh;
+    width: 100dvw;
+    grid-template-rows: 1fr 50px;
+    background-image: url("../assets/wave.svg");
+    background-position: center bottom;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-attachment: fixed;
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+.base-layout {
+    display: grid;
+    gap: 3rem;
+    grid-template-columns: 1fr minmax(auto, 100ch) auto 1fr;
+    grid-template-areas:
+		". header sidebar ."
+		". content sidebar .";
+    grid-template-rows: auto 1fr;
+}
+
+.content {
+    grid-area: content;
+}
+
+.sidebar {
+    grid-area: sidebar;
+}
+
+.content,
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing);
+    margin-block-start: 3rem;
+}
+
+.header {
+    margin-block-start: 3rem;
+    grid-area: header;
+}
+
+.header nav {
+    margin-block-end: 3rem;
+}
+
+footer {
+    display: flex;
+    justify-content: center;
+    font-size: 0.85rem;
+    margin-block-start: var(--spacing);
+}
+
+.content-grid {
+    padding: var(--spacing);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    background-color: var(--box-color);
+    display: grid;
+    gap: var(--spacing);
+    backdrop-filter: var(--blur);
+}
+
+.card-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+}
+
+.rectangular_card_grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+}
+
+.empty-grid {
+    grid-template-rows: 1fr 1fr;
+    gap: 0;
+    place-items: center;
+}
+
+@media screen and (max-width: 800px) {
+    #root {
+        background-size: 200%;
+    }
+
+    .base-layout {
+        grid-template-columns: 0.5rem 1fr 0.5rem;
+        grid-template-areas:
+			". header ."
+			". content ."
+			". sidebar .";
+        gap: var(--spacing);
+    }
+
+    .header {
+        margin-block-start: var(--spacing);
+    }
+}
+
+@media screen and (max-width: 370px) {
+    .base-layout {
+        grid-template-columns: auto 1fr auto;
+    }
+}
+
+.base-layout:not(:has(.sidebar)) {
+    grid-template-columns: 1fr minmax(auto, 130ch) 1fr;
+    grid-template-areas:
+		". header ."
+		". content .";
+}
+
+.content-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.content-buttons > .buttons {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.sidebarFlex {
+    display: flex;
+    justify-content: space-around;
+    gap: var(--spacing);
+}

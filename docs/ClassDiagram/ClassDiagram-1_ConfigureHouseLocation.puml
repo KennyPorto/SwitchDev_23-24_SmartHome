@@ -1,0 +1,181 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+
+package controller{
+class Ctrl01{
+- _houseService : HouseService
++ Ctrl01(houseService: HouseService): void
++ configureLocation(houseId: long, addressDTO: AddressDTO, gpsDTO: GpsDTO): boolean
+}
+}
+
+package services{
+    class HouseService {
+    - _houseRepository: HouseRepository;
+    - _houseFactory: HouseFactory;
+    + HouseService(houseRepository: HouseRepository, HouseFactory houseFactory): void;
+    + configureLocation(houseId: long, addressDTO: AddressDTO, gpsDTO: GpsDTO): boolean;
+'    + add(houseDTO: HouseDTO): boolean;
+'    + findAll(): Iterable<HouseDTO>;
+'    + findById(id: Long): HouseDTO;
+'    + existsById(id: Long): Pair<Boolean, String>;
+    }
+}
+
+package dto{
+class AddressDTO {
++ street: String;
++ doorNumber: String;
++ zipCode: String;
++ city: String;
++ country: String;
+}
+
+class GpsDTO {
++ latitude: double;
++ longitude: double;
+}
+}
+
+package domain{
+
+package house{
+class House {
+    - _houseId: HouseId
+    - _address: Address
+    - _gps: GPS
+    # House(houseId: HouseID, address: Address, gps: GPS): void
+    + configureAddress (street: String, doorNumber: String, zipCode: String, city: String, country: String): void
+    + configureGps (latitude: double, longitude: double): void
+    + identity(): HouseId
+}
+
+    class HouseFactory {
+    + createHouse(houseID: HouseID, Address: Address, gps: GPS): House;
+    + createHouseId(id: long): Optional<HouseId>;
+'    + createAddress(street: String, doorNumber: String, zip: String, city: String, country: String): Optional<Address>;
+'    + createGPS(latitude: double, longitude: double): Optional<Gps>;
+    }
+
+'class Location {
+'    - _street: String
+'    - _doorNumber: String
+'    - _zip: String
+'    - _city: String
+'    - _country: String
+'    - _gps: GPS
+'    + getStreet(): String
+'    + getDoorNumber(): String
+'    + getZip(): String
+'    + getCity(): String
+'    + getCountry(): String
+'    + getGPS(): GPS
+'    + configureLocation(args): boolean
+'}
+'
+'class LocationFactory {
+'    + createLocation(args): Location
+'}
+}
+
+}
+
+package repositories{
+    class HouseRepository {
+    - _houses: Map<HouseId, House>;
+    + save(house: House): House;
+'    + findAll(): Iterable<House>;
+'    + existsById(houseId: HouseID): boolean;
+    + findById(houseId: HouseID): Optional<House>;
+    }
+}
+
+package valueObject {
+
+    class HouseId <VO> {
+    + id: long;
+    + HouseId(id: long): void;
+    - validateArguments(id: long): boolean;
+    + equals(object: Object): boolean;
+    + hashCode(): int;
+    }
+
+    class Address <VO> {
+    + street: String;
+    + doorNumber: String;
+    + zipCode: String;
+    + city: String;
+    + country: String;
+    - _zipCodeValidator: ZipCodeValidator;
+    + Address(street: String, doorNumber: String, zipCode: String, city: String, country: String): void;
+    - validateArguments(street: String, doorNumber: String, zipCode: String, city: String, country: String): boolean;
+    + equals(object: Object): boolean;
+    + hashCode(): int;
+    }
+
+    class Gps <VO> {
+    + latitude: double;
+    + longitude: double;
+    + Gps(latitude: double, longitude: double): void;
+    - validateArguments(latitude: double, longitude: double): boolean;
+    + equals(object: Object): boolean;
+    + hashCode(): int;
+    }
+
+'    class PortugalZipCode <VO> {
+'    +validateZipCode(zipCode: String): boolean;
+'    }
+'
+'    class SpainZipCode <VO> {
+'    +validateZipCode(zipCode: String): boolean;
+'    }
+'
+'    class USAZipCode <VO> {
+'    +validateZipCode(zipCode: String): boolean;
+'    }
+'
+'    class CanadaZipCode <VO> {
+'    +validateZipCode(zipCode: String): boolean;
+'    }
+'
+'    interface ZipCodeValidator {
+'    +validateZipCode(zipCode: String): boolean;
+'    }
+}
+
+'note left of House
+'args: street: String, doorNumber: String,
+'zip: String, city: String,
+'country: String, latitude: double, longitude: double
+'end note
+
+Ctrl01 "1" ..> "1" HouseService : "uses"
+HouseService "1" ..> "1" HouseRepository : "uses"
+HouseService "1" ..> "1" HouseFactory : "uses"
+HouseFactory "1" ..> "1" House : "creates"
+
+'House "1"  ..> "1" LocationFactory : "uses"
+'LocationFactory "1"  ..> "1" Location : "creates"
+'House "1"  --> "1" Location : "has"
+
+House "1" *-- "1" HouseId : "uses"
+House "1" *-- "1" Address : "uses"
+House "1" *-- "1" Gps : "uses"
+'House "1" *-- "1" PortugalZipCode : "uses"
+'House "1" *-- "1" SpainZipCode : "uses"
+'House "1" *-- "1" USAZipCode : "uses"
+'House "1" *-- "1" CanadaZipCode : "uses"
+
+HouseFactory "1" <.. "1" HouseId : "creates"
+HouseFactory "1" <.. "1" Address : "creates"
+HouseFactory "1" <.. "1" Gps : "creates"
+'HouseFactory "1" <.. "1" PortugalZipCode : "creates"
+'HouseFactory "1" <.. "1" SpainZipCode : "creates"
+'HouseFactory "1" <.. "1" USAZipCode : "creates"
+'HouseFactory "1" <.. "1" CanadaZipCode : "creates"
+
+HouseService "1" .left.> "1" GpsDTO : "uses"
+HouseService "1" ..> "1" AddressDTO : "uses"
+
+@enduml

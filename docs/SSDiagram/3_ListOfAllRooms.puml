@@ -1,0 +1,36 @@
+ @startuml
+
+@startuml
+
+!theme cerulean
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor white
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+title UC03
+
+actor Administrator
+participant System
+
+Administrator -> System: Get list of my houses
+System --> Administrator: Presents list of houses
+Administrator -> System: Select a house
+System --> Administrator: Presents house details
+Administrator -> System: Select list existing rooms in house
+System --> Administrator: Presents list of existing rooms
+Administrator -> System: Selects a room to edit
+System --> Administrator: Presents room details
+@enduml

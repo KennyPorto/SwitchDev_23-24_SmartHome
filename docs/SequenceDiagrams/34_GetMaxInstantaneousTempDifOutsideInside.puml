@@ -1,0 +1,133 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam CollectionsBorderColor #000000
+skinparam CollectionsBackgroundColor #2471A3
+skinparam CollectionsFontColor #EEF2F7
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+title UC34 - Get the maximum instantaneous temperature difference between a device in the room and the outside, in a given period
+
+participant ":GetMaxInstantaneousTempDifOutsideInsideController" as C
+participant ":MaxInstantTempDiffDTO" as MaxInstantTempDiffDTO
+participant ":EnvTempService" as EnvTempService
+participant ":SensorRepository" as SensorRepository
+participant ":SensorTypeRepository" as SensorTypeRepository
+participant ":SensorActivityLogRepository" as SensorActivityLogRepository
+participant ":RoomRepository" as RoomRepository
+participant ":DeviceRepository" as DeviceRepository
+
+
+[o-> C : getMaximumTempDifference(deviceId: long,\nstartTime: String, \nendTime: String, \ndelta: long)
+note right: Updated input parameters: \n-startTime\n-endTime\n-delta (acceptable measurement \ntime slot difference)
+activate C
+C -> EnvTempService: getMaximumTempDifference(deviceId: long,\nstartTime: ZonedDateTime, \nendTime: ZonedDateTime, \ndelta: long)
+activate EnvTempService
+
+'EnvTempService -> EnvTempService: isIndoorDevice(deviceId: DeviceId)
+'EnvTempService -> EnvTempService: validateTimePeriod(timePeriodDTO: TimePeriodDTO)
+== Getting Indoor Logs from specified deviceId ==
+group "findAllTemperatureSensorByDeviceId(deviceId: DeviceId)"
+EnvTempService -> SensorRepository: findAllByDeviceId(deviceId)
+activate SensorRepository
+SensorRepository --> EnvTempService: Iterable<Sensor> sensors
+deactivate SensorRepository
+
+loop sensors.size
+EnvTempService -> SensorTypeRepository: findById(sensorTypeId)
+activate SensorTypeRepository
+SensorTypeRepository --> EnvTempService: sensorType: Optional<SensorType>
+deactivate SensorTypeRepository
+opt sensorType.isPresent() && (sensorType.get().getMeasurementUnit().equals(MeasurementUnit.Celsius)
+EnvTempService -> EnvTempService: temperatureSensors.add(sensor)
+end
+
+end
+
+end
+
+group "getLogsInAGivenTimePeriod(indoorSensors: Iterable<Sensor>, startDate: ZonedDateTime, endDate: ZonedDateTime)"
+loop sensors.size
+EnvTempService -> SensorActivityLogRepository: findAllBySensorIdAndTimestampBetween(sensor.identity().id, startDate, endDate)
+activate SensorActivityLogRepository
+SensorActivityLogRepository --> EnvTempService: logs: Iterable<SensorActivityLog>
+deactivate SensorActivityLogRepository
+loop logs.size
+EnvTempService -> EnvTempService: sensorActivityLogs.add(sensorActivity)
+end
+
+end
+
+end
+EnvTempService -> RoomRepository: findRoomByDeviceId(deviceId: DeviceId)
+activate RoomRepository
+RoomRepository --> EnvTempService: room: Room
+deactivate RoomRepository
+
+== Getting Outdoor Logs ==
+
+EnvTempService -> RoomRepository: findAllByHouseIdAndOutdoorIndoor(room.getHouseId(), \nOutdoorIndoor.OUTDOOR)
+activate RoomRepository
+RoomRepository --> EnvTempService: outdoorRooms: Iterable<Room>
+deactivate RoomRepository
+
+group "findAllDevicesInARoomList(outdoorRooms: Iterable<Room>)"
+loop outdoorRooms.size
+EnvTempService -> DeviceRepository: findAllByRoomId(roomId.id: Long)
+activate DeviceRepository
+DeviceRepository --> EnvTempService: devices: Iterable<Device>
+deactivate DeviceRepository
+loop devices.size
+EnvTempService -> EnvTempService: devicesToReturn.add(device)
+end
+
+end
+
+end
+
+group "findAllTemperatureSensorsInAListOfDevices(devices: Iterable<Device>)"
+loop devices.size
+EnvTempService -> EnvTempService: findAllTemperatureSensorByDeviceId(\ndevice.identity().id): sensorsToReturn.addAll(sensors)
+note right: Reusing the \n"findAllTemperatureSensorByDeviceId(deviceId: DeviceId)"\n method previously written to get sensors: List<Sensor>
+end
+
+end
+
+EnvTempService -> EnvTempService: getLogsInAGivenTimePeriod(\noutdoorSensors: Iterable<Sensor>, \nstartDate: ZonedDateTime, \nendDate: ZonedDateTime)
+note right: Reusing the \n"getLogsInAGivenTimePeriod(...)"\n method previously written to get \noutdoorLogs: List<SensorActivityLog>
+== Calculations ==
+
+group "calculateMaximumTemperatureDifference(indoorLogs: List<SensorActivityLog>, outdoorLogs: List<SensorActivityLog>, maximumSecondsAllowedBetweenReadings: long)"
+EnvTempService -> EnvTempService: calculateMaxTempDiff(\nindoorSensors: List<SensorActivityLog>, \noutdoorSensors: List<SensorActivityLog>, \nmaximumSecondsAllowedBetweenReadings: long)
+note right: Method that has the calculation algorithm\n->check attached flowchart to visualize the algorithm
+end
+EnvTempService --> C: tempDiff: double
+deactivate EnvTempService
+
+C -> MaxInstantTempDiffDTO**: new MaxInstantTempDiffDTO(tempDiff: double)
+activate MaxInstantTempDiffDTO
+MaxInstantTempDiffDTO --> C: maxInstantTempDiffDTO: MaxInstantTempDiffDTO
+deactivate MaxInstantTempDiffDTO
+
+
+[o<-- C : maxInstantTempDiffDTO
+deactivate C
+
+
+@enduml

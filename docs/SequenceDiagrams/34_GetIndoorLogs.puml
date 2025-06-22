@@ -1,0 +1,67 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam CollectionsBorderColor #000000
+skinparam CollectionsBackgroundColor #2471A3
+skinparam CollectionsFontColor #EEF2F7
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+title UC34 - Get the maximum instantaneous temperature difference between a device in the room and the outside, in a given period - Indoor Logs
+group Indoor Logs
+group "findAllTemperatureSensorByDeviceId(deviceId: DeviceId)"
+EnvTempService -> SensorRepository: findAllByDeviceId(deviceId)
+activate EnvTempService
+activate SensorRepository
+SensorRepository --> EnvTempService: Iterable<Sensor> sensors
+deactivate SensorRepository
+
+loop sensors.size
+EnvTempService -> SensorTypeRepository: findById(sensorTypeId)
+activate SensorTypeRepository
+SensorTypeRepository --> EnvTempService: sensorType: Optional<SensorType>
+deactivate SensorTypeRepository
+opt sensorType.isPresent() && (sensorType.get().getMeasurementUnit().equals(MeasurementUnit.Celsius)
+EnvTempService -> EnvTempService: temperatureSensors.add(sensor)
+end
+
+end
+
+end
+
+group "getLogsInAGivenTimePeriod(indoorSensors: Iterable<Sensor>, startDate: ZonedDateTime, endDate: ZonedDateTime)"
+loop sensors.size
+EnvTempService -> SensorActivityLogRepository: findAllBySensorIdAndTimestampBetween(sensor.identity().id, startDate, endDate)
+activate SensorActivityLogRepository
+SensorActivityLogRepository --> EnvTempService: logs: Iterable<SensorActivityLog>
+deactivate SensorActivityLogRepository
+loop logs.size
+EnvTempService -> EnvTempService: sensorActivityLogs.add(sensorActivity)
+end
+
+end
+
+end
+EnvTempService -> RoomRepository: findRoomByDeviceId(deviceId: DeviceId)
+activate RoomRepository
+RoomRepository --> EnvTempService: room: Room
+
+deactivate RoomRepository
+end
+@enduml

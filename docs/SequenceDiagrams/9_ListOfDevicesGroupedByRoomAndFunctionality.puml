@@ -1,0 +1,86 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam titleFontSize 20
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+participant ":Ctrl09" as Ctrl09
+participant ":DevFuncService" as DevFuncService
+participant ":DeviceMapper" as DeviceMapper
+participant ":HouseFactory" as HouseFactory
+participant ":RoomRepository" as RoomRepository
+participant ":DeviceRepository" as DeviceRepository
+participant ":SensorRepository" as SensorRepository
+participant ":ActuatorRepository" as ActuatorRepository
+
+
+title US09 - Get a list of all devices in a house, grouped by device functionality types. It must include device location.
+activate Ctrl09
+[o-> Ctrl09 : getDevicesByRoomAndFunctionality(houseId: long)
+Ctrl09 -> DevFuncService: getData(houseId: long)
+activate DevFuncService
+DevFuncService -> HouseFactory: createHouseId(houseId: long)
+activate HouseFactory
+HouseFactory --> DevFuncService: id: Optional<HouseId>
+deactivate HouseFactory
+
+DevFuncService -> RoomRepository: findAllByHouseId(id.get(): HouseId)
+activate RoomRepository
+RoomRepository --> DevFuncService: rooms: Iterable<Room>
+deactivate RoomRepository
+
+loop Room room : rooms.size
+DevFuncService -> DeviceRepository: findAllByRoomId(room.identity(): Room)
+activate DeviceRepository
+DeviceRepository --> DevFuncService: devices: Iterable<Device>
+deactivate DeviceRepository
+
+loop Device device : devices.size
+DevFuncService -> DevFuncService: totalDevicesList.add(device)
+end
+end
+
+loop Device device : totalDevicesList.size
+DevFuncService -> SensorRepository: findAllByDeviceId(device.identity(): DeviceId)
+activate SensorRepository
+SensorRepository --> DevFuncService: sensors: Iterable<Sensor>
+deactivate SensorRepository
+DevFuncService -> ActuatorRepository: findAllByDeviceId(device.identity(): DeviceId)
+activate ActuatorRepository
+ActuatorRepository --> DevFuncService: actuator: Iterable<Actuator>
+deactivate ActuatorRepository
+DevFuncService -> DeviceMapper**: deviceToDto(device: Device): DeviceDTO
+activate DeviceMapper
+DeviceMapper --> DevFuncService: deviceDTO: DeviceDTO
+deactivate DeviceMapper
+
+loop Sensor sensor : sensors.size
+DevFuncService -> DevFuncService: functionalities.put(sensor.getSensorTypeId().id: SensorTypeId, \ndeviceDTO: DeviceDTO)
+end
+
+loop Actuator actuator : actuators.size
+DevFuncService -> DevFuncService: functionalities.put(actuator.getActuatorTypeId().id: ActuatorTypeId, \ndeviceDTO: DeviceDTO)
+end
+end
+
+'DevFuncService -> DevFuncService: getFunctionalities(totalDevicesList: List<Device>): Set<Map.Entry<String, DeviceDTO>>
+DevFuncService --> Ctrl09: functionalities: Set<Map.Entry<String, DeviceDTO>>
+deactivate DevFuncService
+[o<-- Ctrl09: <font color="green">functionalities: Set<Map.Entry<String, DeviceDTO>> </font>
+deactivate Ctrl09
+@enduml

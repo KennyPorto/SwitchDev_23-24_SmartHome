@@ -1,0 +1,76 @@
+@startuml
+
+!theme cerulean
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor white
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+
+title Process View Level 4 - GET
+
+box Server #lightgray
+participant ":Route" as route
+participant ":Controller" as controller
+participant ":Mapper\nModel2Dto" as modeltodto
+participant "dto:DtoX" as dto
+participant ":AppService" as appservice
+participant ":Repository" as repository
+participant ":Mapper\nDomainToData" as domtodata
+participant ":DBDriver" as dbdriver
+endbox
+
+box DataBase #lightgray
+participant "data:DataX" as dataX
+participant "dataX:X" as Xobj
+end box
+
+
+[o-> route : GET
+activate route
+route -> controller : getX(args)
+activate controller
+controller -> appservice : getX(args)
+appservice -> repository : getX(args)
+activate repository
+repository -> dbdriver : getX(args)
+activate dbdriver
+dbdriver --> dataX** : getX(args)
+dataX --> dbdriver : data
+dbdriver --> repository : data
+deactivate
+repository -> domtodata : map2Model(data)
+activate domtodata
+domtodata --> Xobj**
+Xobj --> domtodata : dataX
+domtodata --> repository : dataX
+deactivate
+repository --> appservice : dataX
+deactivate
+appservice --> controller : dataX
+controller -> modeltodto : map2dto(dataX)
+activate modeltodto
+modeltodto -> dto** : create(dataX)
+dto --> modeltodto : dto
+modeltodto --> controller : dto
+deactivate
+controller --> route : dto
+deactivate
+route -> route: convert2json(dto)
+route -> route : generateRes(json)
+[o<- route : OK 200
+deactivate
+
+@enduml

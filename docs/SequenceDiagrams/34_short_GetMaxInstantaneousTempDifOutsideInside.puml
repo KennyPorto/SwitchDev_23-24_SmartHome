@@ -1,0 +1,69 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam CollectionsBorderColor #000000
+skinparam CollectionsBackgroundColor #2471A3
+skinparam CollectionsFontColor #EEF2F7
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+title UC34 - Get the maximum instantaneous temperature difference between a device in the room and the outside, in a given period
+
+participant ":GetMaxInstantaneousTempDifOutsideInsideController" as C
+participant ":MaxInstantTempDiffDTO" as MaxInstantTempDiffDTO
+participant ":EnvTempService" as EnvTempService
+
+[o-> C : getMaximumTempDifference(deviceId: long,\nstartTime: String, \nendTime: String, \ndelta: long)
+note right: Updated input parameters: \n-startTime\n-endTime\n-delta (acceptable measurement \ntime slot difference)
+activate C
+C -> EnvTempService: getMaximumTempDifference(deviceId: long,\nstartTime: ZonedDateTime, \nendTime: ZonedDateTime, \ndelta: long)
+activate EnvTempService
+
+'EnvTempService -> EnvTempService: isIndoorDevice(deviceId: DeviceId)
+'EnvTempService -> EnvTempService: validateTimePeriod(timePeriodDTO: TimePeriodDTO)
+== Getting Indoor Logs from specified deviceId ==
+group getIndoorLogs
+EnvTempService -> EnvTempService: getIndoorLogs(\ndeviceId: long, \nstartDate: ZonedDateTime, \nendDate: ZonedDateTime)
+note right: See IndoorLogs diagram
+end
+
+== Getting Outdoor Logs ==
+group getOutdoorLogs
+EnvTempService -> EnvTempService: getOutDoorLogs(\nstartDate: ZonedDateTime, \nendDate: ZonedDateTime)
+note right: See OutdoorLogs diagram
+end
+== Calculations ==
+
+group calculateMaximumTemperatureDifference(\nindoorLogs: List<SensorActivityLog>, \noutdoorLogs: List<SensorActivityLog>, \nmaximumSecondsAllowedBetweenReadings: long)
+EnvTempService -> EnvTempService: calculateMaxTempDiff(\nindoorSensors: List<SensorActivityLog>, \noutdoorSensors: List<SensorActivityLog>, \nmaximumSecondsAllowedBetweenReadings: long)
+note right: Method that has the calculation algorithm\n->check attached flowchart to visualize the algorithm
+end
+EnvTempService --> C: tempDiff: double
+deactivate EnvTempService
+
+C -> MaxInstantTempDiffDTO**: new MaxInstantTempDiffDTO(tempDiff: double)
+activate MaxInstantTempDiffDTO
+MaxInstantTempDiffDTO --> C: maxInstantTempDiffDTO: MaxInstantTempDiffDTO
+deactivate MaxInstantTempDiffDTO
+
+
+[o<-- C : maxInstantTempDiffDTO
+deactivate C
+
+
+@enduml

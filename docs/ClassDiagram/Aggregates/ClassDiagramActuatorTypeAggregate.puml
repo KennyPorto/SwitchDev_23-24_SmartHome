@@ -1,0 +1,108 @@
+@startuml
+!theme toy
+
+interface DomainId {}
+interface DomainEntity {
+    identity(): ID
+    sameAs(Object object): boolean
+}
+interface AggregateRoot {}
+AggregateRoot -down|> DomainEntity
+AggregateRoot -up|> DomainId
+
+package actuatortype {
+    class ActuatorType <root> {
+        - _actuatorTypeId: ActuatorTypeId
+        - _measurementUnit: MeasurementUnit
+        + ActuatorType (actuatorTypeId : actuatorTypeId, measurementUnit: MeasurementUnit)
+        + getMeasurementUnit(): MeasurementUnit
+        + identity() : ActuatorTypeId
+        + sameAs (obj : Object): boolean
+    }
+
+    class ActuatorTypeFactory {
+        + createActuatorType(actuatorTypeId : ActuatorTypeId, measurementUnit: MeasurementUnit)
+        + createActuatorTypeName(name : String): Optional<ActuatorTypeId>
+    }
+}
+
+ActuatorType -right..|> AggregateRoot
+
+package valueObject{
+
+    class ActuatorTypeId<VO>{
+        - _name : String;
+        + ActuatorTypeId (name : String)
+        - validateArguments(name: String)
+        + toString() : String
+    }
+
+    enum MeasurementUnit<VO>{
+        + Celsius,
+        + Percentage,
+        + Binary,
+        + Speed,
+        + Watts,
+        + WattsPerHour
+    }
+}
+
+interface ValueObject {}
+
+ActuatorTypeId -down.|> ValueObject
+MeasurementUnit -down.|> ValueObject
+
+package repository {
+    class ActuatorTypeRepository {
+        - _data : Map<ActuatorTypeId, ActuatorType>;
+        + save (entity : ActuatorType) : ActuatorType
+        + findAll() : Iterable<ActuatorType>
+        + findById(id : ActuatorTypeId) : Optional<ActuatorType>
+        + existsById(id : ActuatorTypeId) : boolean
+    }
+}
+
+interface Repository<ID extends DomainId, T extends AggregateRoot<ID>> {
+    save(T entity): T
+    findAll(): Iterable<T>
+    ofIdentity(ID id): Optional<T>
+    containsOfIdentity(ID id): boolean
+}
+
+ActuatorTypeRepository -right..|> Repository
+
+package service {
+    class ActuatorTypeService {
+        - _repository: Repository<ActuatorTypeId, ActuatorType>
+        - _actuatorTypeFactory: ActuatorTypeFactory
+        + ActuatorTypeService(repository: Repository<ActuatorTypeId, ActuatorType>, actuatorTypeFactory: ActuatorTypeFactory)
+        + add(actuatorTypeDTO: ActuatorTypeDTO)
+        + findAll(): Iterable<ActuatorTypeDTO>
+        + findById(id : String) ActuatorTypeDTO
+        + existsById(id : String): Pair<Boolean, ActuatorTypeId>
+    }
+}
+
+package dto {
+    class ActuatorTypeDTO {
+        + name: String
+        + measurementUnit: String
+        + ActuatorTypeDTO(name: String, measurementUnit: String)
+    }
+
+    class ActuatorTypeMapper {
+        + actuatorTypeToDto(actuatorType: ActuatorType): ActuatorTypeDTO
+        + actuatorTypesToDto(actuatorTypes: Iterable<ActuatorType>): Iterable<ActuatorTypeDTO>
+    }
+}
+
+ActuatorTypeFactory "1" --o "1" ActuatorTypeService: uses <
+ActuatorTypeFactory "1" -up-* "1" ActuatorType: creates >
+ActuatorType "1" *-down-- "1" ActuatorTypeId: has >
+ActuatorType "1" *-down-- "1" MeasurementUnit: has >
+ActuatorTypeService "1" o-down- "1" ActuatorTypeRepository: interacts >
+ActuatorTypeDTO "1" -left-> "1" ActuatorTypeMapper: converts <
+ActuatorTypeMapper "1" -down-> "1" ActuatorType: converts >
+ActuatorTypeService "1" -> "1" ActuatorTypeMapper: uses >
+
+@enduml

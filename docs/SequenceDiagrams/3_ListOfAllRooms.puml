@@ -1,0 +1,58 @@
+@startuml
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+title US03 - Get List of Rooms
+
+participant ":Ctrl03" as Ctrl03
+participant ":RoomService" as RoomService
+participant ":RoomMapper" as RoomMapper
+participant ":RoomRepository" as RoomRepository
+participant ":HouseFactory" as HouseFactory
+participant ":HouseId" as HouseId
+
+'ref over Ctrl03 : US1A: to Get House by Id
+
+[o-> Ctrl03: getListRoomsByHouseId(houseId: long)
+activate Ctrl03
+Ctrl03 -> RoomService: getListRoomsByHouseId(houseId: long)
+activate RoomService
+RoomService -> HouseFactory: createHouseId(houseId: long)
+activate HouseFactory
+HouseFactory -> HouseId**: HouseId(long id)
+activate HouseId
+HouseId -> HouseId: validateArguments(long id)
+HouseId --> HouseFactory: HouseId
+deactivate HouseId
+HouseFactory --> RoomService: HouseId
+deactivate HouseFactory
+RoomService -> RoomRepository: findAllByHouseId(houseId: HouseId)
+activate RoomRepository
+RoomRepository --> RoomService: Iterable<Room>
+deactivate RoomRepository
+RoomService -> RoomMapper**: domain2DTO(rooms: Iterable<Room>)
+activate RoomMapper
+RoomMapper --> RoomService: Iterable<RoomDTO>
+deactivate RoomMapper
+RoomService --> Ctrl03: Iterable<RoomDTO>
+deactivate RoomMapper
+deactivate RoomService
+[o<-- Ctrl03 : Iterable<RoomDTO>
+
+@enduml

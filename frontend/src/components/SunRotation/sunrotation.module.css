@@ -1,0 +1,32 @@
+.sunRotationContainer {
+    text-align: center;
+    max-width: 320px;
+    margin-inline: -1.5rem;
+    margin-top: 2rem;
+    padding-right: 1rem;
+    align-self: baseline;
+}
+
+@media (max-width: 440px) {
+    .sunRotationContainer {
+        max-width: 400px;
+        margin-inline: auto;
+        padding-right: 0;
+        margin-block-start: -2rem
+    }
+}
+
+.labels {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.labelSunrise, .labelSunset {
+    text-align: center;
+    flex: 1 1 45%;
+    min-width: 100px;
+}
+
+

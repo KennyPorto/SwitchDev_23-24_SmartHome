@@ -1,0 +1,128 @@
+@startuml
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam CollectionsBorderColor #000000
+skinparam CollectionsBackgroundColor #2471A3
+skinparam CollectionsFontColor #EEF2F7
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+title UC12 - Add a Actuator to an existing device in a room
+
+participant ":Ctrl12" as C
+participant ":ActuatorService" as AS
+participant ":ActuatorFactory" as AF
+participant ":ActuatorModel" as AM
+participant ":ActuatorName" as AN
+participant ":ActuatorId" as AId
+participant ":DeviceFactory" as DF
+participant ":DeviceId" as DId
+participant ":ActuatorTypeFactory" as ATF
+participant ":ActuatorTypeId" as ATId
+participant ":ActuatorRepository" as AR
+participant ":DeviceRepository" as DR
+participant ":Device" as D
+participant ":Actuator" as A
+
+
+
+[o-> C : addActuator(actuatorDTO : ActuatorDTO)
+activate C
+C -> AS : add(actuatorDTO : ActuatorDTO)
+activate AS
+AS -> AF : createActuatorModel(actuatorModel : String)
+activate AF
+AF -> AM** : createActuatorModel(actuatorModel : String)
+activate AM
+AM -> AM: validateArguments()
+AM --> AF : <font color="green">ActuatorModel </font>
+deactivate AM
+AF --> AS : <font color="green">ActuatorModel </font>
+deactivate AF
+AS -> AF : createActuatorName(actuatorName : String)
+activate AF
+AF -> AN** : createActuatorName(actuatorName : String)
+activate AN
+AN -> AN: validateArguments()
+AN --> AF : <font color="green">ActuatorName </font>
+deactivate AN
+AF --> AS :<font color="green">ActuatorName </font>
+deactivate AF
+AS -> AF: createActuatorId (actuatorId : long)
+activate AF
+AF -> AId** : createActuatorId(actuatorId : long)
+activate AId
+AId -> AId: validateArguments()
+AId --> AF : <font color="green">ActuatorId </font>
+deactivate AId
+AF --> AS : <font color="green">ActuatorId </font>
+deactivate AF
+AS -> DF : createDeviceId(deviceId : long)
+activate DF
+DF -> DId** : createDeviceId(deviceId : long)
+activate DId
+DId -> DId: validateArguments()
+DId --> DF : <font color="green">DeviceId </font>
+deactivate DId
+DF --> AS : <font color="green">DeviceId </font>
+deactivate DF
+AS -> ATF : createActuatorTypeId(actuatorType : String)
+activate ATF
+ATF -> ATId** : createActuatorTypeId(actuatorType : String)
+activate ATId
+ATId -> ATId: validateArguments()
+ATId --> ATF : <font color="green">ActuatorTypeId </font>
+deactivate ATId
+ATF --> AS : <font color="green">ActuatorTypeId </font>
+deactivate ATF
+AS -> AR : isModelAvailable(actuatorModel : String)
+activate AR
+AR --> AS : <font color="green">true </font>
+deactivate AR
+AS -> AR : existsById(actuatorId : ActuatorId)
+activate AR
+AR --> AS : <font color="red">false </font>
+deactivate AR
+AS -> DR: findById(deviceId : DeviceId)
+activate DR
+DR -> DR : findById(deviceId : DeviceId)
+DR --> AS : <font color="green">Device </font>
+deactivate DR
+AS -> D : getDeviceStatus().activated
+activate D
+D --> AS : <font color="green">true </font>
+deactivate D
+deactivate DR
+AS -> AF : createActuator(deviceId : DeviceId, actuatorId : ActuatorId, actuatorName : ActuatorName, actuatorModel : ActuatorModel, actuatorTypeId : ActuatorTypeId)
+activate AF
+AF -> A** : createActuator(deviceId : DeviceId, actuatorId : ActuatorId, actuatorName : ActuatorName, actuatorModel : ActuatorModel, actuatorTypeId : ActuatorTypeId)
+activate A
+A --> AF : <font color="green">Actuator </font>
+deactivate A
+AF --> AS : <font color="green">Actuator </font>
+deactivate AF
+AS -> AR : save(actuator : Actuator)
+activate AR
+AR --> AS : <font color="green">Actuator </font>
+deactivate AR
+AS --> C : <font color="green">true </font>
+deactivate AS
+[o<-- C : <font color="green">true </font>
+deactivate C
+
+
+@enduml

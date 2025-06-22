@@ -1,0 +1,27 @@
+@startuml
+'https://plantuml.com/class-diagram
+package controller {
+    class Ctrl09 {
+        - _devFuncService: DevFuncService
+        + Ctrl09(devFuncService: DevFuncService)
+        + getDevicesByRoomAndFunctionality(houseId: long): Set<Map.Entry<String, DeviceDTO>>
+    }
+}
+
+package service {
+    class DevFuncService {
+        - _houseFactory: HouseFactory
+        - _roomRepository: RoomRepository
+        - _deviceRepository: DeviceRepository
+        - _sensorRepository: SensorRepository
+        - _actuatorRepository: ActuatorRepository
+        + DevFuncService(houseFactory: HouseFactory, roomRepository: RoomRepository, \ndeviceRepository: DeviceRepository, sensorRepository: SensorRepository, actuatorRepository: ActuatorRepository)
+        + getData(houseId: long): Set<Map.Entry<String, DeviceDTO>>
+        - getAllHouseDevices(houseId: long): List<Device>
+        - getFunctionalities(deviceList: List<Device>): Set<Map.Entry<String, DeviceDTO>>
+    }
+}
+
+Ctrl09 "1" *-down- "1" DevFuncService
+
+@enduml

@@ -1,0 +1,57 @@
+@startuml
+'https://plantuml.com/class-diagram
+!theme reddress-lightblue
+interface Sensor {}
+interface Actuator {}
+interface Value {}
+
+House -> Room : has
+House -down-> Location : has
+Location -right-> GPS :has
+Room -down-> Dimensions : has
+Room -> Device :has
+Device -down-> Log : has
+Device ---> Sensor : has
+Device -down--> Actuator : has
+Value <|.down- OtherSensors : implements
+Value <|.left- OtherActuators : implements
+
+OtherActuators -down.|> Actuator : implements
+OtherSensors -down.|> Sensor : implements
+ class House{
+    - _location: Location
+ }
+class Room{
+ - _name: String
+    - _houseFloor: String
+    - _dimensions: Dimensions
+    - _devices: List<Device>
+}
+class Device{
+- _name : String;
+- _deviceModel : String;
+- _sensors : List<Sensor>;
+- _actuators : List<Actuator>;
+}
+class Location{
+    - _street: String
+    - _doorNumber: String
+    - _zip: String
+    - _city: String
+    - _country: String
+    - _gps: GPS
+    }
+    class GPS{
+    - _latitude : double
+    - _longitude : double
+    }
+    class Dimensions{
+   - _height: double
+    - _width: double
+    - _length: double
+    }
+    class Log{
+    - _time:  String
+    - _message : String
+    }
+@enduml

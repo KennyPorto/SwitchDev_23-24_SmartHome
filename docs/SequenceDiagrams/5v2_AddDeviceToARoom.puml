@@ -1,0 +1,104 @@
+@startuml
+!theme cerulean
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor white
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+participant ":Ctrl05" as Ctrl05
+participant ":DeviceService" as ServiceDevice
+participant ":RoomFactory" as RoomFactory
+participant ":RoomId" as RoomId
+participant ":RoomRepository" as RoomRepository
+participant ":FactoryDevice" as FactoryDevice
+participant ":DeviceId" as DeviceId
+participant ":DeviceName" as DeviceName
+participant ":DeviceModel" as DeviceModel
+participant ":Device" as Device
+participant ":DeviceRepository" as DeviceRepository
+
+title US05v2
+
+ref over Ctrl05 : US3A: to List Rooms
+
+[o-> Ctrl05: addDevice(roomId: long, deviceDTO: DeviceDTO)
+activate Ctrl05
+Ctrl05 -> ServiceDevice: addDevice(roomId: long, deviceDTO: DeviceDTO)
+activate ServiceDevice
+
+ServiceDevice -> RoomFactory: createRoomId(roomId: long)
+activate RoomFactory
+RoomFactory -> RoomId**: RoomId(roomId: long)
+activate RoomId
+RoomId -> RoomId: validateArguments(roomId: long)
+RoomId --> RoomFactory: RoomId
+deactivate RoomId
+RoomFactory --> ServiceDevice: RoomId
+deactivate RoomFactory
+ServiceDevice -> RoomRepository: existsById(roomId: RoomId)
+activate RoomRepository
+RoomRepository --> ServiceDevice: true
+deactivate RoomRepository
+
+' creating DeviceName and DeviceModel objects inside the factory class
+ServiceDevice -> FactoryDevice: createDevice(roomId RoomId, deviceDTO.id: long, deviceDTO.name: String, deviceDTO.model: String)
+activate FactoryDevice
+FactoryDevice -> DeviceId**: DeviceId(deviceId: long)
+activate DeviceId
+DeviceId -> DeviceId: validateArguments(deviceId: long)
+DeviceId --> FactoryDevice: DeviceId
+deactivate DeviceId
+
+FactoryDevice -> DeviceName**: DeviceName(deviceName: String)
+activate DeviceName
+DeviceName -> DeviceName: validateArguments(deviceName: String)
+DeviceName --> FactoryDevice: DeviceName
+deactivate DeviceName
+
+FactoryDevice -> DeviceModel**: DeviceModel(deviceModel: String)
+activate DeviceModel
+DeviceModel -> DeviceModel: validateArguments(deviceModel: String)
+DeviceModel --> FactoryDevice: DeviceModel
+deactivate DeviceModel
+
+note left of Device
+  args: roomId RoomId,
+  deviceId: DeviceId,
+  deviceName: DeviceName,
+  deviceModel: DeviceModel
+end note
+
+FactoryDevice -> Device**: Device(args)
+activate Device
+Device --> FactoryDevice: Device
+deactivate Device
+FactoryDevice --> ServiceDevice: Device
+deactivate FactoryDevice
+
+ServiceDevice -> DeviceRepository: existsById(deviceId: DeviceId)
+activate DeviceRepository
+DeviceRepository --> ServiceDevice: false
+deactivate DeviceRepository
+
+ServiceDevice -> DeviceRepository: save(device: Device)
+activate DeviceRepository
+DeviceRepository --> ServiceDevice: Device
+deactivate DeviceRepository
+ServiceDevice --> Ctrl05: true
+deactivate ServiceDevice
+[o<-- Ctrl05 : true
+deactivate Ctrl05
+
+@enduml

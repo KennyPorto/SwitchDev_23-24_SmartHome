@@ -1,0 +1,241 @@
+@startuml
+!theme toy
+
+package controller {
+    class Ctrl12{
+    - _actuatorService : ActuatorService
+    + Ctrl12(actuatorService : ActuatorService)
+    + addActuator(actuatorDTO : ActuatorDTO) : boolean
+    }
+}
+
+package domain {
+    package device{
+        class Device <root> {
+        - _roomId : RoomId
+        - _deviceId : DeviceID
+        - _deviceName : DeviceName
+        - _deviceModel : DeviceModel
+        - _deviceStatus : DeviceStatus
+        - _deviceFactory : DeviceFactory
+        o Device(roomId: RoomId, deviceId: DeviceID, deviceName: DeviceName, deviceModel: DeviceModel, deviceFactory: DeviceFactory)
+        + getRoomId () : RoomId
+        + identity () : DeviceID
+        + getName () : DeviceName
+        + getModel () : DeviceModel
+        + getDeviceStatus () : DeviceStatus
+        + deactivatedDevice () : boolean
+        + equals (object : Object) : boolean
+        + hashCode () : int
+        + sameAs (object : Object) : boolean
+        }
+
+        class DeviceFactory <entity>{
+        + createDevice (roomId: RoomId, deviceID : DeviceID, deviceName : DeviceName, deviceModel : DeviceModel) : Device
+        + createDeviceId (id : long) : Optional <DeviceID>
+        + createDeviceName (name : String) : Optional<DeviceName>
+        + createDeviceModel (model : String) : Optional<DeviceModel>
+        + createDeviceStatus (activated : boolean) : DeviceStatus
+        }
+    }
+
+    package actuators{
+        class ActuatorFactory<entity>{
+        + createActuator(deviceId : DeviceId, actuatorId : ActuatorId, actuatorName :ActuatorName, actuatorModel : ActuatorModel, actuatorTypeId : ActuatorTypeId) : Actuator
+        + createActuatorName (name : String) : Optional<ActuatorName>
+        + createActuatorModel (model : String) : Optional<ActuatorModel>
+        + createActuatorId (id : long) : Optional<ActuatorId>
+        }
+
+        interface Actuator <root> {
+        getName() : String
+        getActuatorTypeId () : ActuatorTypeId
+        getDeviceId () : DeviceId
+        }
+    }
+
+
+
+    package actuatorType {
+        class ActuatorType{
+        - _actuatorTypeId : ActuatorTypeId
+        - _measurementUnit : MeasurementUnit
+        + ActuatorType (actuatorTypeId : ActuatorTypeId, measurementUnit : MeasurementUnit)
+        + getMeasurementUnit () : MeasurementUnit
+        + identity () : ActuatorTypeId
+        + sameAs (object : Object) : boolean
+        }
+
+        class ActuatorTypeFactory{
+        + createActuatorType (actuatorTypeId : ActuatorTypeId, measurementUnit : MeasurementUnit) : ActuatorType
+        + createActuatorTypeId (id : long) : Optional<ActuatorTypeId>
+        }
+    }
+
+    package valueObject{
+        class DeviceId<VO>{
+        + id : long
+        + DeviceId (id : long)
+        - validateArguments (id : long) : boolean
+        + equals (object : Object) : boolean
+        + hashCode () : int
+        }
+
+        class ActuatorModel<VO>{
+        + model : String
+        + ActuatorModel (model : String)
+        + equals (object : Object) : boolean
+        + hashCode () : int
+        }
+
+        class ActuatorName<VO>{
+        + name : String
+        + ActuatorName(name : String)
+        + equals (object : Object) : boolean
+        + hashCode () : int
+        }
+
+    class ActuatorId <VO>{
+        + id : long
+        + ActuatorId (id : long)
+        - validateArguments (id : long) : boolean
+        + equals (object : Object) : boolean
+        + hashCode () : int
+        }
+
+        class ActuatorTypeId <VO>{
+        + id : long
+        + ActuatorTypeId (id : long)
+        - validateArguments (id : long) : boolean
+        + toString() : String
+        + equals (object : Object) : boolean
+        + hashCode () : int
+        }
+    }
+
+'    package ddd{
+'        interface AggregateRoot{
+'        }
+'
+'        interface Repository{
+'        save (entity : T) : T
+'        findAll (id : ID) : Iterable<T>
+'        findById (ID : ID) : Optional<T>
+'        existsById (id : ID) : boolean
+'        }
+'
+'        interface Service<ID, DTO>{
+'        add (dto : DTO) : boolean
+'        findAll () : Iterable<DTO>
+'        findById (id : long) : DTO
+'        existsById (id : long) : Pair<Boolean, ID>
+'        }
+'
+'        interface ValueObject{
+'        }
+'
+'        interface DomainEntity{
+'        identity() : ID
+'        sameAs (object : Object) : boolean
+'        }
+'    }
+        enum MeasurementUnit{
+            Celsius,
+            Percentage,
+            Binary,
+            Speed,
+            Watts,
+            WattsPerHour
+        }
+}
+    package services{
+    class ActuatorService<entity>{
+        - _actuatorRepository : ActuatorRepository
+        - _actuatorFactory : ActuatorFactory
+        - _deviceRepository : DeviceRepository
+        - _deviceFactory : DeviceFactory
+        - _actuatorTypeFactory : ActuatorTypeFactory
+        + ActuatorService(actuatorRepository : ActuatorRepository, actuatorFactory : ActuatorFactory, deviceRepository : DeviceRepository, deviceFactory : DeviceFactory, actuatorTypeFactory : ActuatorTypeFactory) : ActuatorService
+        + add(actuatorDTO : ActuatorDTO) : boolean
+        + findById (id : long) : Actuator
+        + existsById (actuatorId : long) : Pair<Boolean, ActuatorId>
+        + findAll () : Iterable<Actuator>
+        }
+    }
+        package repository{
+             class ActuatorRepository<entity>{
+            - _availableModels : List<String>
+            - _sensorData : Map<ActuatorID, Actuator>
+            + ActuatorRepository(fileName : String) : ActuatorRepository
+            - isValidArgument(fileName : String) : boolean
+            + findAllModels () : List<String>
+            + isModelAvailable (model : String) : boolean
+            + save (actuator : Actuator) : Actuator
+            + findAll() : List<Actuator>
+            + findById (id : ActuatorId) : Optional<Actuator>
+            + existsById (id : ActuatorId) : boolean
+            + findAllByDeviceId (deviceId : DeviceId) : Iterable<Actuator>
+            }
+
+             class DeviceRepository<entity>{
+            - _data : Map<DeviceID, Device>
+            + save (entity : Device) : Device
+            + findAll () : Iterable<Device>
+            + findById (id : DeviceID) : Optional<Device>
+            + existsById (id : DeviceID) : boolean
+            + findAllByRoomId (roomId : RoomId) : Iterable<Device>
+            }
+        }
+
+   package dto{
+    class ActuatorDTO{
+    + deviceId : long
+    + actuatorId : long
+    + actuatorName : String
+    + actuatorModel : String
+    + actuatorType : String
+    + ActuatorDTO (deviceId : long, actuatorId : long, actuatorName : String, actuatorModel : String, actuatorType : String)
+    }
+   }
+
+Ctrl12 "1" *..  "1" ActuatorDTO : uses >
+Ctrl12 "1" *..  "1" ActuatorService : uses >
+ActuatorService "1" *..  "1" ActuatorDTO : uses >
+ActuatorService "1" *--  "1" ActuatorFactory : uses >
+DeviceFactory "1" *-down- "1" DeviceId : creates >
+'Device "1" ..down..> "1" AggregateRoot : implements >
+'Actuator "1" ..down..> "1" AggregateRoot : implements >
+'ActuatorName "1" ..down..> "1" ValueObject : implements >
+'ActuatorModel "1" ..down..> "1" ValueObject : implements >
+'ActuatorId "1" ..down..> "1" ValueObject : implements >
+'DeviceId "1" ..down..> "1" ValueObject : implements >
+'DeviceRepository "1" ..down..> "1" Repository : implements >
+'ActuatorRepositoryImpl "1" ..down..> "1" Repository : implements >
+'ActuatorService "1" ..down..> "1"Service : implements >
+'ActuatorType "1" ..down..> "1" AggregateRoot : implements >
+ActuatorTypeFactory "1" *-down- "1" ActuatorType : creates >
+ActuatorTypeFactory "1" *-down- "1" ActuatorTypeId : creates >
+'ActuatorTypeId "1" ..down..> "1" ValueObject : implements >
+ActuatorType "1" *-down- "1" MeasurementUnit : has >
+'DomainEntity "1" ..down..> "1" AggregateRoot : implements >
+ActuatorService "1" *-down- "1" ActuatorTypeFactory : uses >
+ActuatorService "1" *-down- "1" DeviceFactory : uses >
+DeviceFactory "1" *-down- "1" Device : creates >
+ActuatorFactory "1" *.. "N" Actuator : uses >
+ActuatorFactory "1" *-up- "1" ActuatorName : creates >
+ActuatorFactory "1" *-up- "1" ActuatorModel : creates >
+ActuatorRepository "1" *-- "1" ActuatorModel : uses >
+ActuatorFactory "1" *-- "1" DeviceId : uses >
+ActuatorService "1" *-- "1" ActuatorRepository : interacts >
+ActuatorService "1" *-- "1" DeviceRepository : interacts >
+ActuatorFactory "1" *-up- "1" ActuatorId : creates >
+ActuatorRepository "1" *-- "1" ActuatorId : uses >
+ActuatorFactory "1" *-up- "1" ActuatorTypeId : uses >
+ActuatorTypeFactory "1" *-up- "1" MeasurementUnit : uses >
+ActuatorType "1" *-up- "1" ActuatorTypeId : has >
+DeviceRepository "1" *-- "1" DeviceId : uses >
+DeviceRepository "1" *-- "1" Device : uses >
+Device "1" *-- "1" DeviceId : has >
+
+
+@enduml

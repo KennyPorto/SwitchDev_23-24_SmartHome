@@ -1,0 +1,247 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+package controller {
+class Ctrl06 {
+- _devicesService : DeviceService
++ Ctrl06(deviceService: DeviceService)
++ getListDevicesByRoom(roomId: Room) : Iterable<DeviceDTO>
+}
+}
+
+package services {
+    class DeviceService {
+            - _deviceFactory: DeviceFactoryImpl
+            - _deviceRepository: DeviceRepository
+            - _roomFactory: RoomFactory
+            - _roomRepository: RoomRepository
+            + DeviceService(deviceRepository: DeviceRepository, deviceFactory: DeviceFactory, roomRepository: RoomRepository, roomFactory: RoomFactory)
+            + add(deviceDto: DeviceDTO): boolean
+            + findAll(): Iterable<DeviceDTO>
+            + findById(id : long): DeviceDTO
+            + existsById(id : long): Pair<Boolean, DeviceID>
+            + getListDevicesByRoomId(id: long): Iterable<DeviceDTO>
+            + deactivateDevice(id: long): boolean
+        }
+}
+
+
+package domain {
+package room{
+'class Room {
+'    - _name: String
+'    - _houseFloor: String
+'    - _dimensions: Dimensions
+'    - _devices: List<Device>
+'    - _repository: Repository
+'    - _deviceFactory: DeviceFactory
+'    - _dimensionsFactory: DimensionsFactory
+'    + Room(name: String, houseFloor: String, \nheight: double, width: double, \nrepository: Repository, deviceFactory: DeviceFactory, \ndimensionsFactory: DimensionsFactory): Room
+'    - validateArguments(name: String, houseFloor: String): boolean
+'    + getName(): String
+'    + getFloor(): String
+'    + getDimensions(): Dimensions
+'    + addDevice(name: String, model: String): boolean
+'    - deviceExists(name: String): boolean
+'    + getDevice(name: String): Device
+'    + getDevices(): List<Device>
+'    + toString(): String
+'}
+
+class RoomFactory {
+    + createRoom(roomName: RoomName, houseID: HouseID, houseFloor: Floor, dimensions: Dimensions): Room
+    + createRoomName(roomName: String): RoomName
+    + createRoomId(roomID: long): RoomId
+    + createHouseID(houseID: long): HouseID
+    + createFloor(floor: String): Floor
+    + createDimensions(height: double, width: double, length: double): Dimensions
+}
+}
+
+package device{
+    class Device <root> {
+        - _deviceId: DeviceId
+        - _deviceName : DeviceName;
+        - _deviceModel : DeviceModel;
+        - _deviceStatus: DeviceStatus;
+        - _roomId: RoomId;
+        - _deviceFactory: DeviceFactory
+        # Device (roomId RoomId, deviceId: DeviceId, deviceName : DeviceName, \ndeviceModel : DeviceModel, _deviceFactory: DeviceFactory)
+        + getName(): DeviceName
+        + getModel(): DeviceModel
+        + getRoomId(): RoomId
+        + getDeviceStatus(): DeviceStatus
+        + deactivateDevice(): boolean
+        + identity() : DeviceId
+        + equals (object : Object): boolean
+        + sameAs (object : Object): boolean
+        +hashCode() : int
+    }
+
+class DeviceFactory{
+        + createDevice(roomName RoomName, deviceName : DeviceName, deviceModel : DeviceModel)
+        + createDeviceId(deviceId: long): DeviceId
+        + createDeviceStatus(activated: boolean): DeviceStatus
+    }
+}
+}
+
+package dto {
+'class RoomMapper{
+'+ Domain2DTO (room: Room) : RoomDTO
+'+ Domain2DTO (rooms: List<Room>) : Map<RoomDTO, room>
+'}
+
+class DeviceMapper{
++ DeviceToDto (device: Device) : DeviceDTO
++ DeviceListToDto (devices: Iterable<Device>) : Iterable<DeviceDTO>
+}
+
+'class RoomDTO{
+'+ name : String
+'+ floor : String
+'+ height : double
+'+ width : double
+'+ height : double
+'+ RoomDTO ( room : Room, dimensions : Dimensions) : RoomDTO
+'+ toString() : String
+'}
+
+class DeviceDTO{
++ roomId: long
++ id: long
++ name : String
++ model : String
++ DeviceDTO (roomId: long, id: long, name: String, model: String) : void
+}
+}
+
+'    package ddd{
+'        interface AggregateRoot{
+'        }
+'
+'        interface Repository{
+'        save (entity : T) : T
+'        findAll (id : ID) : Iterable<T>
+'        findById (ID : ID) : Optional<T>
+'        existsById (id : ID) : boolean
+'        }
+'
+'        interface Service<ID, DTO>{
+'        add (dto : DTO) : boolean
+'        findAll () : Iterable<DTO>
+'        findById (id : long) : DTO
+'        existsById (id : long) : Pair<Boolean, ID>
+'        }
+'
+'        interface ValueObject{
+'        }
+'
+'        interface DomainEntity{
+'        identity() : ID
+'        sameAs (object : Object) : boolean
+'        }
+'    }
+
+package repository {
+    class RoomRepository {
+        - _rooms: Map<RoomID, Room>
+        + save(room: Room): Room
+        + findAll(): Iterable<Room>
+        + findByID(id: RoomID): Optional<Room>
+        + existsByID(id: RoomID): boolean
+        + findAllByHouseId(houseId: HouseId): Iterable<Room>
+    }
+
+    class DeviceRepository {
+        - _data : Map<DeviceId, Device>;
+        + save (entity : Device) : Device
+        + findAll() : Iterable<Device>
+        + findById(id : DeviceId) : Optional<Device>
+        + existsById(id : DeviceId) : boolean
+        + findAllByRoomId(roomId: long): Iterable<Device>
+    }
+}
+
+package valueObject{
+
+    class DeviceId<VO>{
+        - _id : long;
+        + DeviceId (id : long)
+        - validateArguments(id: long)
+        + toString() : String
+        + equals (obj : Object) : boolean
+    }
+
+    class DeviceName<VO>{
+        + _name : String;
+        + DeviceName (name : String)
+        - validateArguments(name: String)
+        + toString() : String
+        + equals (obj : Object) : boolean
+    }
+
+    class DeviceModel<VO>{
+        + _model : String;
+        + DeviceModel (model : String)
+        - validateArguments(model: String)
+        + toString() : String
+        + equals (obj : Object) : boolean
+    }
+
+    class DeviceStatus<VO> {
+        + activated: boolean
+        + DeviceStatus(activated: boolean)
+        + toString() : String
+        + equals (obj : Object) : boolean
+    }
+
+    class RoomId<VO>{
+        - _id : long;
+        + RoomId (id : long)
+        - validateArguments(id: long): boolean
+        + toString() : String
+        + equals (obj : Object) : boolean
+    }
+
+}
+
+Ctrl06 "1" ..> "1" DeviceService : "uses"
+DeviceService "1" ..down> "1" RoomFactory : "uses"
+'DeviceService "1" ..> "1" RoomRepository : "uses"
+DeviceService "1" ..down> "1" DeviceFactory : "uses"
+DeviceService "1".left.> "1" DeviceRepository : "uses"
+DeviceService "1".down.> "1" RoomRepository : "uses"
+DeviceService "1" -right> "1" DeviceDTO : "uses"
+'RoomFactory "1" *-- "1" Room : "creates"
+Device "1" *-- "1" RoomId : "uses"
+Device "1" o-- "1" DeviceName : "uses"
+Device "1" *-- "1" DeviceId : "uses"
+Device "1" o-- "1" DeviceModel : "uses"
+Device "1" o-- "1" DeviceStatus : "uses"
+
+DeviceFactory "1" *-right- "1" Device : "creates"
+
+RoomFactory "1" <.. "1" RoomId : "creates"
+DeviceFactory "1" <-.. "1" DeviceName : "creates"
+DeviceFactory "1" <-.. "1" DeviceId : "creates"
+DeviceFactory "1" <.. "1" DeviceModel : "creates"
+DeviceFactory "1" <.. "1" DeviceStatus : "creates"
+
+'Room "1"  *-left-  "N" Device: "has"
+DeviceMapper "1" .left.> "N" DeviceDTO : "uses"
+DeviceMapper "1" ..> "N" Device : "uses"
+'RoomMapper "1" ..left> "N" Room : "uses"
+'RoomMapper "1" ..> "N" RoomDTO : "uses"
+DeviceRepository "1" ..> "1" DeviceMapper : "uses"
+
+'Device "1" ..down..> "1" AggregateRoot : "implements"
+'RoomName "1" ..down..> "1" ValueObject : "implements"
+'Floor "1" ..down..> "1" ValueObject : "implements"
+'Dimensions "1" ..down..> "1" ValueObject : "implements"
+'RoomId "1" ..down..> "1" ValueObject : "implements"
+'DeviceRepository "1" ..down..> "1" Repository : "implements"
+'DeviceService "1" ..down..> "1" Service : "implements"
+'DomainEntity "1" ..down..> "1" AggregateRoot : "implements"
+
+@enduml

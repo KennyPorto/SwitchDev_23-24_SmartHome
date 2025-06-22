@@ -1,0 +1,45 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam CollectionsBorderColor #000000
+skinparam CollectionsBackgroundColor #2471A3
+skinparam CollectionsFontColor #EEF2F7
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+autonumber
+
+title SaveAction(measurement: Measurement, blindRollerActuator: BlindRollerActuator)
+
+
+ActuatorActService -> ActuatorLogId**: new ActuatorLogId(actuatorId: actuatorId)
+activate ActuatorLogId
+ActuatorLogId --> ActuatorActService: <font color="green">actuatorLogId: ActuatorLogId </font>
+deactivate ActuatorLogId
+
+ActuatorActService -> ActivityLogFactory: createActuatorActivityLog(actuatorLogId: ActuatorLogId, \nactuatorId: ActuatorId, timeStamp : Timestamp, \nmeasurement: double)
+activate ActivityLogFactory
+ActivityLogFactory --> ActuatorActService: <font color="green">log: Optional<ActuatorActivityLog> </font>
+deactivate ActivityLogFactory
+
+ActuatorActService -> ActuatorActivityLogRepository: save(actuatorActivityLog: ActuatorActivityLog)
+activate ActuatorActivityLogRepository
+ActuatorActivityLogRepository --> ActuatorActService: <font color="green">actuatorActivityLog: ActuatorActivityLog </font>
+deactivate ActuatorActivityLogRepository
+
+@enduml

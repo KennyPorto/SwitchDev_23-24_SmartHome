@@ -1,0 +1,42 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam CollectionsBorderColor #000000
+skinparam CollectionsBackgroundColor #2471A3
+skinparam CollectionsFontColor #EEF2F7
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+autonumber
+
+title UpdateBlindRoller(measurement: Measurement, blindRollerActuator: BlindRollerActuator)
+
+ActuatorActService -> PercentageValue**: new PercentageValue(measurement: parseInt)
+activate PercentageValue
+PercentageValue --> ActuatorActService: <font color="green">percentageValue: PercentageValue </font>
+deactivate PercentageValue
+
+ActuatorActService -> BlindRollerActuator: setCurrentValue(value: PercentageValue)
+activate BlindRollerActuator
+BlindRollerActuator --> ActuatorActService: <font color="green">true </font>
+deactivate BlindRollerActuator
+
+ActuatorActService -> ActuatorRepository: save(actuator: Actuator)
+activate ActuatorRepository
+ActuatorRepository --> ActuatorActService: <font color="green">actuator: Actuator </font>
+deactivate ActuatorRepository
+@enduml

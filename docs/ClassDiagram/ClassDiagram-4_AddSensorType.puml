@@ -1,0 +1,95 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+package controller {
+    class Ctrl04 {
+        - _sensorTypeService: SensorTypeService
+        + Ctrl04(sensorTypeService: SensorTypeService)
+        + getAllSensorTypes(): Iterable<SensorTypeDTO>
+        + addSensorType(sensorTypeDTO: SensorTypeDTO)
+    }
+}
+
+package service {
+    class SensorTypeService {
+        - _repository: Repository<SensorTypeId, SensorType>
+        - _sensorTypeFactory: SensorTypeFactory
+        + SensorTypeService(repository: Repository<SensorTypeId, SensorType>, sensorTypeFactory: SensorTypeFactory)
+        + add(sensorTypeDTO: SensorTypeDTO): boolean
+        + findAll(): Iterable<SensorType>
+        + findById(String id): Optional<SensorTypeDTO>
+        + existsById(String id): Pair<Boolean, SensorTypeId>
+    }
+}
+
+package repository {
+    class SensorTypeRepository {
+        - _data: Map<SensorTypeId, SensorType>
+        + SensorTypeRepository()
+        + save(entity: SensorType): boolean
+        + findAll(): Iterable<SensorType>
+        + findById(id: SensorTypeId): Optional<SensorType>
+        + existsById(id: SensorTypeId): boolean
+    }
+}
+
+package dto {
+    class SensorTypeDTO {
+        + id: String
+        + measurementUnit: String
+        + SensorTypeDTO(id: String, measurementUnit: String)
+    }
+
+    class SensorTypeMapper {
+        + sensorTypeToDto(sensorType: SensorType): SensorTypeDTO
+        + sensorTypesToDto(sensorTypes: Iterable<SensorType>): Iterable<SensorTypeDTO>
+    }
+}
+
+package domain {
+    class SensorType {
+        - _sensorTypeId: SensorTypeId
+        - _measurementUnit: MeasurementUnit
+        + SensorType(sensorTypeId: SensorTypeId, \nmeasurementUnit: MeasurementUnit)
+        + getMeasurementUnit(): MeasurementUnit
+        + identity(): SensorTypeId
+        + sameAs(object: Object): boolean
+    }
+
+    class SensorTypeFactory {
+        + createSensorType(sensorTypeId: SensorTypeId, \nmeasurementUnit: MeasurementUnit): SensorType
+        + createSensorTypeId(name: String): Optional<SensorTypeId>
+    }
+}
+
+package valueObjects {
+    class SensorTypeId {
+        + id: String
+        + SensorTypeId(id: String)
+        - validateArguments(name: String)
+        + toString(): String
+        + equals(object: Object): boolean
+        + hashCode(): int
+    }
+
+    enum MeasurementUnit {
+        + Celsius
+        + Percentage
+        + Binary
+        + Speed
+        + Watts
+        + WattsPerHour
+    }
+}
+
+Ctrl04 "1" *-down- "1" SensorTypeService: has >
+SensorTypeService "1" o-right- "1" SensorTypeRepository: has >
+SensorTypeService "1" o-right- "1" SensorTypeFactory: has >
+SensorTypeService "1" o-down- "1" SensorTypeMapper: uses >
+SensorTypeService "1" o-down- "1" SensorTypeDTO: uses >
+SensorTypeService "1" *-down- "1" SensorType: uses >
+SensorTypeFactory "1" *-down- "1" SensorType: creates >
+SensorType "1" *-down- "1" SensorTypeId: has >
+SensorType "1" o-down- "1" MeasurementUnit: has >
+
+@enduml

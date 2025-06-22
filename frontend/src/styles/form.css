@@ -1,0 +1,89 @@
+.grid-form {
+    display: grid;
+    max-width: 80ch;
+    gap: 1.5ch;
+}
+
+.grid-form.two-columns {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-form > .submit-buttons {
+    margin-top: var(--spacing);
+    display: flex;
+    justify-content: flex-end;
+    gap: 1.5ch;
+}
+
+label {
+    font-weight: 600;
+    cursor: pointer;
+}
+
+input:required:placeholder-shown {
+    border-color: var(--red-color);
+}
+
+input,
+select,
+textarea {
+    display: block;
+    border: 1px solid var(--primary-color);
+    border-radius: 10px;
+    margin-top: 0.25rem;
+    background: var(--background-color);
+    font-weight: 400;
+    transition: border-color 0.3s ease-out;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+}
+
+select {
+    padding: 0.5rem 0.7rem;
+    margin-top: 0;
+    text-transform: none;
+}
+
+input:not([type="radio"], [type="checkbox"]) {
+    position: relative;
+    min-height: 1.5rem;
+    padding: 0.5rem 0.7rem;
+}
+
+input:focus {
+    outline-offset: 1px;
+    outline: 2px solid var(--box-color);
+}
+
+:is(input, textarea, select):disabled {
+    border: 1px transparent solid;
+    background-color: var(--box-color);
+    cursor: not-allowed;
+}
+
+label:has(:is(input, select, textarea):required):before {
+    content: "* ";
+    color: var(--red-color);
+}
+
+select:not([multiple]):not([size]) {
+    background-image: url("data:image/svg+xml,%3Csvg width='16' height='16' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg' fill='%232e3440'%3E%3Cpath d='M5 6l5 5 5-5 2 1-7 7-7-7 2-1z'/%3E%3C/svg%3E");
+    appearance: none;
+    padding-right: 1.5rem;
+    background-repeat: no-repeat;
+    background-position: right .5rem center;
+}
+
+input[type="range"] {
+    accent-color: var(--primary-color);
+    width: 100%;
+    background: var(--box-color);
+}
+
+input[type=range]:focus {
+    outline: none;
+}

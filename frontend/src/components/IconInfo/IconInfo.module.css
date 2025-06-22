@@ -1,0 +1,19 @@
+.container {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    border-radius: var(--border-radius);
+    justify-content: start;
+    padding: 0.75rem 1rem;
+    background-color: var(--box-color);
+    backdrop-filter: var(--blur);
+    min-width: 175px
+}
+
+.container strong {
+    display: block;
+}
+
+.info {
+    line-height: 1.2;
+}

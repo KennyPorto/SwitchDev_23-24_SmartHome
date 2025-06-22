@@ -1,0 +1,338 @@
+@startuml
+!theme toy
+
+package controller
+{
+
+    class DeviceController<rest controller>
+    {
+     ...
+        + closeBlindRoller(deviceId: long, closeBlindRollerDTO : CloseBlindRollerDTO) : ResponseEntity<ActuatorActivityLog>
+    }
+    class DeviceResourceHandler<resource handler>
+    {
+        ...
+        + closeBlindRoller(deviceId: long, closeBlindRollerDTO : CloseBlindRollerDTO) : ResponseEntity<ActuatorActivityLog>
+    }
+    }
+
+    package services
+    {
+        class ActuatorActService<entity>
+        {
+            - _activityLogRepository : ActivityLogRepository
+            - _deviceRepository : DeviceRepository
+            - _activityLogFactory : ActivityLogFactory
+            - _actuatorRepository : ActuatorRepository
+
+            + closeBlindRoller(deviceID : DeviceID, measurement : Measurement, timeStamp : TimeStamp, actuatorId : ActuatorId) : ActuatorActivityLog
+            - verifyLastMeasurement(measurement : Measurement, blindRollerActuator : Actuator) : void
+            + saveAction(actuator : Actuator, timeStamp : TimeStamp, measurement : Measurement) : ActuatorActivityLog
+            - validateDevice(deviceID : DeviceID, blindRollerActuator : Actuator) : void
+            - getBlindRollerActuator(actuatorId : ActuatorId) : BlindRollerActuator
+            - isBlindRoller(actuator : Actuator) : boolean
+            - isNumeric(measurement : String) : boolean
+        }
+    }
+
+    package Mapper
+    {
+            class CloseBlindRollerDTO<DTO>
+            {
+                + actuatorId : Long
+                + measurement : String
+                + timeStamp : ZonedDateTime
+                + CloseBlindRollerDTO(actuatorId : long, measurement : String, timeStamp : ZonedDateTime)
+                + getCurrentPercentage() : PercentageValue
+            }
+            class ActivityLogMapper<Mapper>
+            {
+                + toDomain(activityLogDTO : ActivityLogDTO) : ActuatorActivityLog
+                + toDTO(activityLog : ActuatorActivityLog) : ActivityLogDTO
+            }
+    }
+
+    package Domain
+    {
+        package repository
+        {
+            interface Repository
+            {
+                + save(T entity): T
+                + findById(id: ID): Optional<T>
+                ...
+            }
+
+            class ActuatorActivityLogRepository
+            {
+                ...
+                + findTopByActuatorIdOrderByTimeStampDesc(actuatorId : long, startDate : ZonedDateTime, \nendDate : ZonedDateTime ): Iterable<ActuatorActivityLog>
+            }
+
+            class DeviceRepository
+            {
+                ...
+            }
+
+            class ActuatorRepository
+            {
+                ...
+            }
+             class SensorRepository
+                        {
+                            ...
+                        }
+
+         }
+'        package device
+'        {
+'            class Device
+'            {
+'                - _roomId : RoomId
+'                - _deviceId : DeviceID
+'                - _deviceName : DeviceName
+'                - _deviceModel : DeviceModel
+'                - _deviceStatus : DeviceStatus
+'                - _deviceFactory : DeviceFactory
+'                ...
+'            }
+'        }
+        package activityLog
+        {
+
+            interface ActivityLog
+            {
+                ...
+                getMeasurement() : Measurement;
+            }
+            package implementation
+            {
+                class ActuatorActivityLog
+                {
+                    ...
+                }
+            }
+
+            class ActivityLogFactory
+            {
+                ...
+                + createActuatorActivityLog(activityLogId : ActivityLogId, actuatorId : ActuatorId,\n timeStamp : TimeStamp, value : Measurement): Optional<ActuatorActivityLog>
+            }
+        }
+        package actuators
+        {
+            interface Actuator
+            {
+                ...
+                getDeviceId() : DeviceID
+                getActuatorModel() : ActuatorModel
+            }
+
+            package implementation
+            {
+                class BlindRollerActuator
+                {
+                    - currentPercentage : PercentageValue
+                    identity() : ActuatorId
+                    getActuatorModel() : ActuatorModel
+                    setCurrentPercentage() : void
+                    getCurrentPercentage() : PercentageValue
+                }
+            }
+
+            class ActuatorFactory
+            {
+            ...
+            createActuator(deviceID : DeviceID, actuatorModel : ActuatorModel,\n name : ActuatorName,id : ActuatorId, actuatorTypeId : ActuatorTypeId)
+            }
+        }
+        package sensors
+                {
+                    interface Sensor
+                    {
+                        ...
+                        getDeviceId() : DeviceID
+                        getSensorModel() : SensorModel
+                    }
+
+                    package implementation
+                    {
+                        class ScaleSensor
+                        {
+                            - _sensorModel : SensorModel
+                            - _sensorTypeId : SensorTypeId
+                            - _name : SensorName
+                            - _id : SensorId
+                            - _deviceId : DeviceID
+                            identity() : SensorId
+                            getSensorTypeId() : SensorTypeId
+                            getName() : SensorName
+                            getDeviceId() : DeviceID
+                            getSensorModel() : SensorModel
+                        }
+                    }
+
+                    class SensorFactory
+                    {
+                    ...
+                    createSensor(deviceID : DeviceID, sensorModel : SensorModel,\n name : SensorName,id : SensorId, sensorTypeId : SensorTypeId)
+                    }
+                }
+
+        package device
+        {
+            class Device
+            {
+
+            }
+        }
+
+        package valueObjects
+        {
+            class ActivityLogId<VO>
+            {
+
+            }
+
+            class DeviceID<VO>
+            {
+
+            }
+
+            class Measurement<VO>
+            {
+
+            }
+
+            class TimeStamp<VO>
+            {
+
+            }
+
+            class ActuatorId<VO>
+            {
+
+            }
+
+            class ActuatorTypeId<VO>
+            {
+
+            }
+            class ActuatorName<VO>
+            {
+
+            }
+
+            class ActuatorModel<VO>
+            {
+
+            }
+            class SensorModel<VO>
+            {
+
+            }
+            class SensorId<VO>
+            {
+
+            }
+
+            class SensorTypeId<VO>
+            {
+
+            }
+            class SensorName<VO>
+            {
+
+            }
+
+            package values
+            {
+                interface Value
+                {
+
+                }
+
+                package implementation
+                {
+                    class PercentageValue
+                    {
+                        + value : int
+                        + PercentageValue (currentValue : int)
+                        - isValidPercentage (value : int) : boolean
+
+                    }                    
+                }
+            }
+
+        }
+
+    }
+
+
+DeviceController "1"-up- ActuatorActService: uses >
+
+ActuatorActService --> ActuatorActivityLogRepository
+ActuatorActService --> DeviceRepository
+ActuatorActService --> ActivityLogFactory
+ActuatorActService --> ActuatorRepository
+ActuatorActService --> SensorRepository
+
+ActuatorActivityLogRepository --|> Repository
+DeviceRepository --|> Repository
+ActuatorRepository --|> Repository
+SensorRepository --|> Repository
+
+
+ScaleSensor .right.|> Sensor : <<implements>>
+
+ActivityLogFactory "1"-up- ActivityLogId : uses >
+ActivityLogFactory "1"-up- ActuatorId : uses >
+ActivityLogFactory "1"-up- TimeStamp : uses >
+ActivityLogFactory "1"-up- Measurement : uses >
+
+ActuatorFactory "1"-up- ActuatorModel : uses >
+ActuatorFactory "1"-up- ActuatorName : uses >
+ActuatorFactory "1"-up- ActuatorTypeId : uses >
+ActuatorFactory "1"-up- DeviceID : uses >
+
+SensorFactory "1"-up- SensorModel : uses >
+SensorFactory "1"-up- SensorName : uses >
+SensorFactory "1"-up- SensorTypeId : uses >
+SensorFactory "1"-up- DeviceID : uses >
+SensorFactory "1"-up- SensorId : uses >
+
+SensorFactory ..> Sensor : <<creates>>
+SensorRepository -up-> Sensor
+
+ActuatorActivityLogRepository -up-> ActivityLog
+DeviceRepository -left-> Device
+ActuatorRepository -up-> Actuator
+
+ActivityLogFactory ..> ActivityLog : <<creates>>
+ActuatorActivityLog .right.|> ActivityLog : <<implements>>
+ActuatorFactory ..> Actuator : <<creates>>
+BlindRollerActuator .right.|> Actuator : <<implements>>
+PercentageValue .right.|> Value : <<implements>>
+
+BlindRollerActuator "1"-right- PercentageValue : uses >
+DeviceController "1"-right-CloseBlindRollerDTO : uses >
+
+DeviceController "1"-down-DeviceResourceHandler : uses >
+DeviceResourceHandler "1"-down-ActivityLogMapper : uses >
+
+
+'ActivityLog "1"-- ActivityLogId : uses >
+'ActivityLog "1"-- ActuatorId : uses >
+'ActivityLog "1"-- TimeStamp : uses >
+'ActivityLog "1"-- Measurement : uses >
+'
+'BlindRollerActuator "1"-- ActuatorName : uses >
+'BlindRollerActuator "1"-- ActuatorId : uses >
+'BlindRollerActuator "1"-- DeviceID : uses >
+'BlindRollerActuator "1"-- ActuatorTypeId : uses >
+'BlindRollerActuator "1"-- ActuatorModel : uses >
+
+
+
+
+@enduml

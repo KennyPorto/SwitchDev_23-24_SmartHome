@@ -1,0 +1,127 @@
+@startuml
+!theme toy
+
+interface DomainId {}
+interface DomainEntity {
+    identity(): ID
+    sameAs(Object object): boolean
+}
+interface AggregateRoot {}
+AggregateRoot -down|> DomainEntity
+AggregateRoot -up|> DomainId
+
+package sensortype {
+    class SensorType <root> {
+        - _sensorTypeName: SensorTypeName
+        - _measurementUnits: MeasurementUnits \nreplaced SensorFunctionality
+'        - _sensorId: SensorId
+'        # SensorType (sensorTypeName : sensorTypeName, measurementUnits: MeasurementUnits, sensorId: SensorId)
+        # SensorType (sensorTypeName : sensorTypeName, measurementUnits: MeasurementUnits)
+        + getMeasurementUnits(): MeasurementUnits
+'        + getSensorId(): SensorId
+        + identity() : SensorTypeName
+        + equals (obj : Object): boolean
+        + sameAs (obj : Object): boolean
+        + toString() : String
+    }
+
+    class SensorTypeFactoryImpl{
+        + createSensorType(sensorTypeName : sensorTypeName, measurementUnits: MeasurementUnits, sensorId: SensorId)
+'        + createSensorId(sensorId: long): SensorId
+    }
+}
+
+SensorType -right..|> AggregateRoot
+
+package valueObject{
+
+'    class SensorId<VO>{
+'        - _id : long;
+'        + SensorId (id : long)
+'        - validateArguments(id: long)
+'        + toString() : String
+'        + equals (obj : Object) : boolean
+'    }
+
+    class SensorTypeName<VO>{
+        - _name : String;
+        + SensorTypeName (name : String)
+        - validateArguments(name: String)
+        + toString() : String
+        + equals (obj : Object) : boolean
+    }
+
+    enum MeasurementUnits<VO>{
+        + ºC
+        + W/h
+        + W
+        + Km/h
+        + hh:mm:ss
+        + dd/MM/yyyy
+        + %
+    }
+}
+
+interface ValueObject {}
+
+SensorTypeName -down.|> ValueObject
+MeasurementUnits -down.|> ValueObject
+'SensorId -down.|> ValueObject
+
+package repository {
+    class SensorTypeRepository {
+        - _data : Map<SensorTypeName, SensorType>;
+        + save (entity : SensorType) : SensorType
+        + findAll() : Iterable<SensorType>
+        + findById(sensorTypeName : SensorTypeName) : Optional<SensorType>
+        + existsById(sensorTypeName : SensorTypeName) : boolean
+'        + findAllBySensorId(sensorId: long): Iterable<SensorType>
+    }
+}
+
+interface Repository<ID extends DomainId, T extends AggregateRoot<ID>> {
+    save(T entity): T
+    findAll(): Iterable<T>
+    ofIdentity(ID id): Optional<T>
+    containsOfIdentity(ID id): boolean
+}
+
+SensorTypeRepository -right..|> Repository
+
+package service {
+    class SensorTypeService {
+        - _sensorTypeRepository: SensorTypeRepository
+        + SensorTypeService(sensorTypeRepository: SensorTypeRepository)
+'        + saveSensorType(sensorId: long, sensorTypeDto: SensorTypeDTO)
+        + saveSensorType(sensorTypeDto: SensorTypeDTO)
+        + findAllSensorTypes(): Iterable<SensorType>
+        + findSensorTypeById(sensorTypeName : SensorTypeName) Optional<SensorType>
+        + sensorTypeExistsById(sensorTypeName : SensorTypeName): boolean
+'        + findAllSensorTypesBySensorId(sensorId: long): Iterable<SensorType>
+    }
+}
+
+package dto {
+    class SensorTypeDTO {
+        + sensorTypeName: String
+        + measurementUnits: String
+        + SensorTypeDTO(sensorTypeName: String, measurementUnits: String)
+    }
+
+    class SensorTypeMapper {
+        + sensorTypeToDto(sensorType: SensorType): SensorTypeDTO
+        + sensorTypesToDto(sensorTypes: Iterable<SensorType>): Iterable<SensorTypeDTO>
+    }
+}
+
+SensorTypeFactoryImpl "1" --o "1" SensorTypeService: uses <
+SensorTypeFactoryImpl "1" -up-* "1" SensorType: creates >
+SensorType "1" *-down-- "1" SensorTypeName: has >
+'SensorType "1" *-down-- "1" SensorId: has >
+SensorType "1" *-down-- "1" MeasurementUnits: has >
+SensorTypeService "1" o-down- "1" SensorTypeRepository: interacts >
+SensorTypeDTO "1" -left-> "1" SensorTypeMapper: converts <
+SensorTypeMapper "1" -down-> "1" SensorType: converts >
+SensorTypeService "1" -> "1" SensorTypeMapper: uses >
+
+@enduml

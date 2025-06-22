@@ -1,0 +1,272 @@
+@startuml
+!theme toy
+
+package controller
+{
+    class Ctrl34_MaxInstTempDiff
+    {
+        - environmentalTemperatureService : EnvironmentalTemperatureService
+        + Ctrl34_MaxInstTempDiff(environmentalTemperatureService : EnvironmentalTemperatureService)
+        + getMaximumInstantaneousTemperatureDifference(deviceID : long, timePeriodDTO : TimePeriodDTO) : MaxInstantTempDiffDTO}
+    }
+
+    package services
+    {
+        class EnvironmentalTemperatureService<entity>
+        {
+            - roomRepository : RoomRepository
+            - sensorRepository : SensorRepository
+            - sensorTypeRepository : SensorTypeRepository
+            - deviceRepository : DeviceRepository
+            - sensorActivityLogRepository : SensorActivityLogRepository
+            - temperatureDomainService : TemperatureDomainService
+
+            + EnvironmentalTemperatureService(roomRepository : RoomRepository, sensorRepository : SensorRepositoryImplMem,\nsensorTypeRep : SensorTypeRepository, deviceRepository : DeviceRepository, sensorActivityLogRepository : SensorActivityLogRepository,\n temperatureDomainService : TemperatureDomainService)
+            + getMaximumTemperatureDifference(deviceID : long, timePeriodDTO : TimePeriodDTO) : MaxInstantTempDiffDTO
+            - findAllDevicesInARoomList(rooms : Iterable<Room>) : List<Device>
+            - isIndoorDevice(long : deviceID) : boolean
+            - validateTimePeriod(timePeriodDTO : TimePeriodDTO) : boolean
+            - findAllTemperatureSensorsInAListOfDevices(devices : List<Device>) : List<Sensor>
+            - findAllTemperatureSensorByDeviceId(long : deviceID) : List<Sensor>
+            - getLogsInAGivenTimePeriod(sensors : Iterable<Sensor>, startDate : ZonedDateTime, endDate : ZonedDateTime) : List<SensorActivityLog>
+            - findRoomByDeviceId(deviceID : long) : Room
+            + calculateMaximumTemperatureDifference(indoorSensors : List<SensorActivityLog> , outdoorSensors : <SensorActivityLog>, maximumSecondsAllowedBetweenReadings : long) : double
+            + getReadingsWithTheLeastTimeDifferenceBetweenThem(indoorSensors : List<SensorActivityLog> , outdoorSensors : List<SensorActivityLog>, maximumSecondsAllowedBetweenReadings : long) : double
+            + getTemperatureDifferenceBetweenTwoReadings(indoorSensors : List<SensorActivityLog> , outdoorSensors : <SensorActivityLog>, indoorAndOutdoorSensorsIndexes : int[]) : double
+       }
+    }
+
+    package DTO
+    {
+        class TimePeriodDTO
+        {
+            + startDate : String
+            + endDate : String
+            + TimePeriodDTO(startDate : String, endDate : String)
+        }
+
+        class MaxInstantTempDiffDTO
+        {
+            + tempDiff : double
+            + MaxInstantTempDiffDTO(tempDiff : double)
+        }
+    }
+
+    package Domain
+    {
+        package repository
+        {
+            class Repository
+            {
+                + save(T entity): T
+                + findAll(): Iterable<T>
+                + findById(id: ID): Optional<T>
+                + existsById(id: ID): boolean
+            }
+
+            class RoomRepository
+            {
+                + findAllByHouseId(houseId: Long): Iterable<Room>
+                + findAllByHouseIdAndOutdoorIndoor(id: long, outdoorIndoor: OutdoorIndoor): Iterable<Room>
+            }
+
+            class SensorRepository
+            {
+                + findAllByDeviceId(deviceId: Long): Iterable<Sensor>
+                + findAllByDeviceIdAndSensorTypeId(deviceId: long, sensorTypeId: String): Iterable<Sensor>
+            }
+
+            class SensorTypeRepository
+            {
+                ...
+                + findById
+            }
+
+            class DeviceRepository
+            {
+                + findAllByRoomId(roomId: Long): Iterable<Device>
+                + isActiveById(deviceID: DeviceID): boolean
+            }
+
+            class SensorActivityLogRepository
+            {
+                + findAllBySensorIdAndTimestampBetween(sensorId: long, startDate: ZonedDateTime, endDate: ZonedDateTime): Iterable<SensorActivityLog>
+            }
+        }
+
+        class Room
+        {
+            - _roomId: RoomId
+            - _houseId: HouseId
+            - _name: String
+            - _outdoorIndoor: OutdoorIndoor
+            + Room(roomId: RoomId, houseId: HouseId, name: String, outdoorIndoor: OutdoorIndoor)
+            + identity(): RoomId
+            + sameAs(object: Object): boolean
+            + getOutdoorIndoor(): OutdoorIndoor
+        }
+
+        class Device
+        {
+            - _deviceId: DeviceId
+            - _roomId: RoomId
+            - _name: String
+            + Device(deviceId: DeviceId, roomId: RoomId, name: String)
+            + identity(): DeviceId
+            + sameAs(object: Object): boolean
+        }
+
+        package activityLog
+        {
+            package implementation
+            {
+                class SensorActivityLog
+                {
+                    - _activityLogId: ActivityLogId
+                    - _timeStamp: TimeStamp
+                    - _sensorId: SensorId
+                    - _measurement: Measurement
+                    + SensorActivityLog(activityLogId: ActivityLogId, timeStamp: TimeStamp , sensorId: SensorId, measurement: Measurement): SensorActivityLog
+                    + getLogTime(): TimeStamp
+                    + getSensorId(): SensorId
+                    + getMeasurement(): Measurement
+                    + identity(): ActivityLogId
+                    + sameAs(object: Object): boolean
+                    - validateArguments(activityLogId: ActivityLogId, timeStamp: TimeStamp, sensorId: SensorId, measurement: Measurement): void
+                }
+            }
+        }
+
+        package sensors
+        {
+            class SensorFactory<entity>
+            {
+                + createSensor(deviceId : DeviceId, sensorId : SensorId, sensorName : SensorName, sensorModel : SensorModel, sensorTypeId : SensorTypeId) : Sensor
+                + createSensorName (name : String) : Optional<SensorName>
+                + createSensorModel (model : String) : Optional<SensorModel>
+                + createSensorId (id : long) : Optional<SensorId>
+            }
+
+            interface Sensor <root>
+            {
+                getName() : String
+                getSensorTypeId () : SensorTypeId
+                getDeviceId () : DeviceId
+            }
+        }
+
+        package sensorType {
+            class SensorType
+            {
+                - _sensorTypeId : SensorTypeId
+                - _measurementUnit : MeasurementUnit
+                + SensorType (sensorTypeId : SensorTypeId, measurementUnit : MeasurementUnit)
+                + getMeasurementUnit () : MeasurementUnit
+                + identity () : SensorTypeId
+                + sameAs (object : Object) : boolean
+            }
+
+            class SensorTypeFactory
+            {
+                + createSensorType (sensorTypeId : SensorTypeId, measurementUnit : MeasurementUnit) : SensorType
+                + createSensorTypeId (id : long) : Optional<SensorTypeId>
+            }
+        }
+
+        package valueObjects
+        {
+            class DeviceId<VO>
+            {
+                + id : long
+                + DeviceId (id : long)
+                - validateArguments (id : long) : boolean
+                + equals (object : Object) : boolean
+                + hashCode () : int
+            }
+
+            class SensorModel<VO>
+            {
+                + model : String
+                + SensorModel (model : String)
+                + equals (object : Object) : boolean
+                + hashCode () : int
+            }
+
+            class SensorName<VO>{
+                + name : String
+                + SensorName(name : String)
+                + equals (object : Object) : boolean
+                + hashCode () : int
+            }
+
+            class SensorId <VO>{
+                + id : long
+                + SensorId (id : long)
+                - validateArguments (id : long) : boolean
+                + equals (object : Object) : boolean
+                + hashCode () : int
+            }
+
+            class SensorTypeId <VO>{
+                + id : long
+                + SensorTypeId (id : long)
+                - validateArguments (id : long) : boolean
+                + toString() : String
+                + equals (object : Object) : boolean
+                + hashCode () : int
+            }
+
+            enum MeasurementUnit
+            {
+                ...
+                Celsius
+            }
+
+        enum OutdoorIndoor
+        {
+            Outdoor
+            Indoor
+        }
+        }
+    }
+}
+
+
+Ctrl34_MaxInstTempDiff --> EnvironmentalTemperatureService
+
+EnvironmentalTemperatureService --> RoomRepository
+EnvironmentalTemperatureService --> SensorRepository
+EnvironmentalTemperatureService --> SensorTypeRepository
+EnvironmentalTemperatureService --> DeviceRepository
+EnvironmentalTemperatureService --> SensorActivityLogRepository
+EnvironmentalTemperatureService --> MaxInstantTempDiffDTO
+EnvironmentalTemperatureService --> TimePeriodDTO
+
+RoomRepository -up-|> Repository
+SensorRepository -up-|> Repository
+SensorTypeRepository -up-|> Repository
+DeviceRepository -up-|> Repository
+SensorActivityLogRepository -up-|> Repository
+
+SensorFactory ..> Sensor : <<creates>>
+SensorTypeFactory ..> SensorType : <<creates>>
+SensorFactory "1"-- SensorName : uses >
+SensorFactory "1"-- SensorModel : uses >
+SensorFactory "1"-- SensorId : uses >
+Sensor "1"-- SensorName : uses >
+Sensor "1"-- SensorTypeId : uses >
+Sensor "1"-- DeviceId : uses >
+SensorType "1"-- SensorTypeId : uses >
+SensorType "1"-- MeasurementUnit : uses >
+SensorTypeFactory "1"-- SensorType : uses >
+SensorTypeFactory "1"-- SensorTypeId : uses >
+
+RoomRepository --> Room
+RoomRepository "1"-- OutdoorIndoor : uses >
+DeviceRepository --> Device
+SensorRepository --> Sensor
+SensorActivityLogRepository --> SensorActivityLog
+
+EnvironmentalTemperatureService ..> SensorActivityLog : <<calculates>>
+
+@enduml

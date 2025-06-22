@@ -1,0 +1,44 @@
+nav > :is(ul, ol) {
+    padding-left: 0;
+    list-style: none;
+}
+
+nav {
+    display: flex;
+    gap: 10px;
+}
+
+nav > ol {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+nav > ol > li:not(:last-child):has(> a)::after {
+    margin-inline: 1rem;
+    content: "/";
+}
+
+nav li > svg {
+    display: inline-block;
+    transform: translateY(0.25ch);
+    margin-inline-end: 1rem;
+}
+
+nav > ol > li:last-child {
+    color: var(--text-color);
+    font-weight: 600;
+}
+
+nav > ol > li:last-child > a {
+    color: inherit;
+}
+
+ul,
+ol {
+    padding-left: 2rem;
+    margin: 0 0 1rem;
+}
+
+li > :is(ul, ol) {
+    margin: 0;
+}

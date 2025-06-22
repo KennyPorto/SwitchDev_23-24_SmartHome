@@ -1,0 +1,37 @@
+@startuml
+
+!theme cerulean
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor white
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+
+title UC01
+
+actor Administrator
+participant "System" as System
+
+Administrator -> System : I want to configure the location of the house.
+
+
+System --> Administrator : street, doorNumber, zipCode, city, country, latitude and longitude?
+Administrator -> System : street, doorNumber, zipCode, city, country, latitude and longitude!
+
+System --> Administrator : True (Configured location).
+
+
+
+@enduml

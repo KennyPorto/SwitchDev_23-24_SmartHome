@@ -1,0 +1,8 @@
+.back {
+    cursor: pointer;
+}
+
+.back:hover {
+    fill: var(--tertiary-color);
+    transition: 300ms ease-in-out;
+}

@@ -1,0 +1,32 @@
+.formContainer {
+    display: flex;
+    gap: 25px;
+    flex-direction: column;
+}
+
+.formContainer > div {
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    background-color: var(--box-color);
+    backdrop-filter: var(--blur);
+    padding: var(--spacing);
+}
+
+.selectActuator {
+    display: flex;
+    gap: 10px;
+    margin-block: var(--spacing);
+}
+
+.currentActuatorPercentage {
+    display: flex;
+    justify-content: center;
+    flex-direction: column
+}
+
+.rangeInputContainer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px
+}

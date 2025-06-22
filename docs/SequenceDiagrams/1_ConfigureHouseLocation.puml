@@ -1,0 +1,86 @@
+@startuml
+
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+title US01: Configure House Location
+
+participant ":Ctrl01" as Ctrl01
+participant ":HouseService" as HouseService
+participant ":HouseFactory" as HouseFactory
+participant ":HouseRepository" as HouseRepository
+participant ":House" as House
+participant ":Address" as Address
+participant ":GPS" as GPS
+
+
+[o-> Ctrl01 : configureHouseLocation(houseId: long,\n addressDto: AddressDTO,\n gpsDto: GPSDTO)
+activate Ctrl01
+Ctrl01 -> HouseService : configureLocation(houseId: long, addressDto: AddressDTO, gpsDto: GPSDTO)
+activate HouseService
+
+HouseService -> HouseFactory: createHouseId(houseId: long)
+activate HouseFactory
+HouseFactory -> HouseId**: HouseId(long id)
+activate HouseId
+HouseId -> HouseId: validateArguments(long id)
+HouseId --> HouseFactory: <font color="green">HouseId</font>
+deactivate HouseId
+HouseFactory --> HouseService: <font color="green">HouseId</font>
+deactivate HouseFactory
+
+
+HouseService -> HouseRepository : findById(houseId: HouseId)
+activate HouseRepository
+HouseRepository --> HouseService : <font color="green">House</font>
+deactivate HouseRepository
+
+
+HouseService -> House : configureAddress(street: String, doorNumber: String,\n zip: String, city: String,  country: String)
+activate House
+House -> Address** : Address(street: String, doorNumber: String,\n zip: String, city: String, country: String)
+activate Address
+Address -> Address: validateArguments(street: String, doorNumber: String,\n zip: String, city: String, country: String)
+Address --> House : <font color="green">True</font>
+deactivate Address
+House --> HouseService: <font color="green">True</font>
+deactivate House
+
+HouseService -> House : configureGPS(latitude: double, longitude: double)
+activate House
+House -> GPS** : GPS(latitude: double, longitude: double)
+activate GPS
+GPS -> GPS: validateArguments(latitude: double, longitude: double)
+GPS --> House: <font color="green">True</font>
+deactivate GPS
+House --> HouseService: <font color="green">True</font>
+deactivate House
+
+
+HouseService -> HouseRepository : save(house : House)
+activate HouseRepository
+HouseRepository --> HouseService : <font color="green">True</font>
+deactivate HouseRepository
+
+HouseService --> Ctrl01 : <font color="green">True</font>
+deactivate HouseService
+[o<-- Ctrl01 : <font color="green">True</font>
+deactivate Ctrl01
+
+@enduml

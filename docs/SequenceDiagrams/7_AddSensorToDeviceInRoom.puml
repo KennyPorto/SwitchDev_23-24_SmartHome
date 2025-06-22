@@ -1,0 +1,128 @@
+@startuml
+!theme cerulean-outline
+
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor #EEF2F7
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam CollectionsBorderColor #000000
+skinparam CollectionsBackgroundColor #2471A3
+skinparam CollectionsFontColor #EEF2F7
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+title UC07 - Add a sensor to an existing device in a room
+
+participant ":Ctrl07" as C
+participant ":SensorService" as SS
+participant ":SensorFactory" as SF
+participant ":SensorModel" as SM
+participant ":SensorName" as SN
+participant ":SensorId" as SId
+participant ":DeviceFactory" as DF
+participant ":DeviceId" as DId
+participant ":SensorTypeFactory" as STF
+participant ":SensorTypeId" as STId
+participant ":SensorRepository" as SR
+participant ":DeviceRepository" as DR
+participant ":Device" as D
+participant ":Sensor" as S
+
+
+
+[o-> C : addSensor(sensorDTO : SensorDTO)
+activate C
+C -> SS : add(sensorDTO : SensorDTO)
+activate SS
+SS -> SF : createSensorModel(sensorModel : String)
+activate SF
+SF -> SM** : createSensorModel(sensorModel : String)
+activate SM
+SM -> SM: validateArguments()
+SM --> SF : <font color="green">SensorModel </font>
+deactivate SM
+SF --> SS : <font color="green">SensorModel </font>
+deactivate SF
+SS -> SF : createSensorName(sensorName : String)
+activate SF
+SF -> SN** : createSensorName(sensorName : String)
+activate SN
+SN -> SN: validateArguments()
+SN --> SF : <font color="green">SensorName </font>
+deactivate SN
+SF --> SS :<font color="green">SensorName </font>
+deactivate SF
+SS -> SF: createSensorId (sensorId : long)
+activate SF
+SF -> SId** : createSensorId(sensorId : long)
+activate SId
+SId -> SId: validateArguments()
+SId --> SF : <font color="green">SensorId </font>
+deactivate SId
+SF --> SS : <font color="green">SensorId </font>
+deactivate SF
+SS -> DF : createDeviceId(deviceId : long)
+activate DF
+DF -> DId** : createDeviceId(deviceId : long)
+activate DId
+DId -> DId: validateArguments()
+DId --> DF : <font color="green">DeviceId </font>
+deactivate DId
+DF --> SS : <font color="green">DeviceId </font>
+deactivate DF
+SS -> STF : createSensorTypeId(sensorType : String)
+activate STF
+STF -> STId** : createSensorTypeId(sensorType : String)
+activate STId
+STId -> STId: validateArguments()
+STId --> STF : <font color="green">SensorTypeId </font>
+deactivate STId
+STF --> SS : <font color="green">SensorTypeId </font>
+deactivate STF
+SS -> SR : isModelAvailable(sensorModel : String)
+activate SR
+SR --> SS : <font color="green">true </font>
+deactivate SR
+SS -> SR : existsById(sensorId : SensorId)
+activate SR
+SR --> SS : <font color="red">false </font>
+deactivate SR
+SS -> DR: findById(deviceId : DeviceId)
+activate DR
+DR -> DR : findById(deviceId : DeviceId)
+DR --> SS : <font color="green">Device </font>
+deactivate DR
+SS -> D : getDeviceStatus().activated
+activate D
+D --> SS : <font color="green">true </font>
+deactivate D
+deactivate DR
+SS -> SF : createSensor(deviceId : DeviceId, sensorId : SensorId, sensorName : SensorName, sensorModel : SensorModel, sensorTypeId : SensorTypeId)
+activate SF
+SF -> S** : createSensor(deviceId : DeviceId, sensorId : SensorId, sensorName : SensorName, sensorModel : SensorModel, sensorTypeId : SensorTypeId)
+activate S
+S --> SF : <font color="green">Sensor </font>
+deactivate S
+SF --> SS : <font color="green">Sensor </font>
+deactivate SF
+SS -> SR : save(sensor : Sensor)
+activate SR
+SR --> SS : <font color="green">Sensor </font>
+deactivate SR
+SS --> C : <font color="green">true </font>
+deactivate SS
+[o<-- C : <font color="green">true </font>
+deactivate C
+
+
+@enduml

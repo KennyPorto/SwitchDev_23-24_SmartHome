@@ -1,0 +1,39 @@
+@startuml
+
+!theme cerulean
+skinparam backgroundColor #EEF2F7
+skinparam titleBorderRoundCorner 15
+skinparam titleBorderThickness 2
+skinparam titleBorderColor #2471A3
+skinparam titleFontColor #2471A3
+skinparam sequenceArrowThickness 2
+skinparam defaultTextAlignment center
+skinparam sequenceParticipantBorderThickness 2
+skinparam sequenceParticipantFontColor white
+skinparam sequenceLifeLineBorderColor #2471A3
+skinparam sequenceLifeLineBorderThickness 1.5
+skinparam sequenceParticipantBackgroundColor #2471A3
+skinparam sequenceParticipantBorderColor #2471A3
+skinparam ArrowColor #2471A3
+skinparam ArrowThickness 2
+skinparam sequenceLifeLineBackgroundColor #D0D3D4
+
+
+title Process View Level 2 - PUT
+
+box System #lightgray
+participant "Frontend" as Frontend
+participant "Backend" as Backend
+endbox
+
+[o-> "Frontend" : PUT
+activate "Frontend"
+"Frontend" -> "Backend" : PUT
+activate "Backend"
+"Backend" --> "Frontend" : Data / HTTP Status CREATED 201
+deactivate "Backend"
+
+[o<-- "Frontend" : Data / HTTP Status CREATED 201
+deactivate "Frontend"
+
+@enduml

@@ -1,0 +1,80 @@
+.houseCard {
+    display: grid;
+    border-radius: var(--border-radius);
+    overflow: hidden;
+    margin-bottom: var(--spacing);
+    box-shadow: var(--shadow);
+    background-color: var(--box-color);
+    backdrop-filter: var(--blur);
+    gap: 1rem;
+    align-items: center;
+    justify-content: space-between;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) auto;
+    cursor: pointer;
+}
+
+.houseCardMap {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: left;
+    align-items: center;
+    height: 350px;
+}
+
+.houseCardMap > :global(.leaflet-container) {
+    flex-wrap: wrap;
+    width: 100%;
+    height: 100%;
+    border-radius: var(--border-radius);
+}
+
+.houseCardInfo {
+    flex-wrap: wrap;
+    height: 100%;
+    padding-block: var(--spacing);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: var(--spacing);
+}
+
+.houseCardInfo h3 {
+    line-height: 1;
+}
+
+/* Hover effect for the house card */
+.houseCard:hover {
+    transform: translateY(-5px);
+    filter: saturate(1.4);
+    box-shadow: var(--shadow);
+}
+
+/* Active state for the house card */
+.houseCard:active {
+    filter: grayscale(50);
+    transform: translateY(1px);
+}
+
+
+@media (max-width: 700px) {
+    .houseCard {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .houseCardMap {
+        order: 3;
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 440px) {
+    .houseCard {
+        grid-template-columns: 1fr;
+    }
+
+    .houseCardMap {
+        grid-column: span 1;
+    }
+}

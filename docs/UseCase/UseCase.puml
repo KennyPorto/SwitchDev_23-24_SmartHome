@@ -1,0 +1,84 @@
+@startuml
+!theme mars
+skinparam actorStyle awesome
+skinparam backgroundColor white
+
+left to right direction
+  actor Administrator
+  actor PowerUser
+  actor RoomOwner
+
+package "Smart Home" {
+  usecase "UC01 - To Configure the House location" as UC01
+  usecase "UC02 - To Add and Configure Rooms" as UC02A
+  usecase "UC03 - To List Rooms" as UC03A
+  usecase "UC03 - To Edit Rooms" as UC03B
+  usecase "UC04 - To Define a Sensor Type" as UC04A
+  usecase "UC04 - To List Sensor Types" as UC04B
+
+  usecase "UC05v2 - To Add a new Device" as UC05v2A
+  usecase "UC05v2 - To Configure a new Device" as UC05v2B
+  usecase "UC06 - To Get Device List in Room" as UC06A
+  usecase "UC06 - To Configure existing Device" as UC06B
+  usecase "UC07 - To Add a Sensor to Device" as UC07A
+  usecase "UC08 - To Deactivate Device" as UC08A
+  usecase "UC08 - To Get Logs" as UC08B
+  usecase "UC08 - To Get Configuration" as UC08C
+  usecase "UC09 - To Get Device List in a House" as UC09A
+  usecase "UC09 - To List by Functionality" as UC09B
+
+  usecase "UC12 - To Add a Actuator to Device" as UC12A
+  usecase "UC12 - Type of Actuator" as UC12B
+
+  usecase "UC33 - To get the measurements of a Device in a Room" as UC33
+  usecase "UC33 - To get the measurements in a given period" as UC33B
+  usecase "UC34 - To get the maximum difference in temperature outside/inside" as UC34
+
+  usecase "UC37 - To close a BlindRoller actuator." as UC37
+
+usecase "UC36 - To get the peak power consumption \nof the house in a given period" as UC36
+
+  Administrator --> UC01
+  Administrator --> UC02A
+  Administrator --> UC04A
+  Administrator --> UC36
+
+  RoomOwner -up-> UC06B
+  PowerUser -right-> UC05v2A
+  PowerUser -right-> UC06A
+  PowerUser -right-> UC07A
+  PowerUser -right-> UC08A
+  PowerUser -right-> UC09A
+  PowerUser -right-> UC12A
+  RoomOwner -up-> UC33
+  RoomOwner -up-> UC34
+  RoomOwner -up-> UC37
+
+  UC01 ..> UC03A: <includes>
+  UC03A <.right. UC03B: <includes>
+  UC02A ..> UC03B: <includes>
+  UC04A ..> UC04B: <includes>
+  UC03A <.. UC06A: <includes>
+  UC03A <.. UC05v2A: <includes>
+  UC34 ..> UC06A
+  UC33 ..> UC06A
+  UC33 ..> UC33B
+  UC34 ..> UC33B
+  UC37 ..> UC08B
+  UC37 .up.> UC06A
+
+  UC05v2A ..> UC05v2B: <includes>
+  UC06A <.. UC09A: <includes>
+  UC09A <.. UC08A: <includes>
+  UC06A <.. UC06B: <includes>
+  UC07A ..> UC04B: <includes>
+  UC06A <.. UC08C: <includes>
+  UC06A <.. UC08B: <includes>
+  UC09A ..> UC09B: <includes>
+  UC07A ..> UC06A: <includes>
+  UC12A ..> UC06A: <includes>
+  UC12A .right.> UC12B: <includes>
+
+ '' UC36 ..>
+}
+@enduml
